@@ -4,6 +4,7 @@ import kr.sul.itemfarming.Main
 import kr.sul.servercore.util.ItemBuilder.loreIB
 import kr.sul.servercore.util.ItemBuilder.nameIB
 import net.wesjd.anvilgui.AnvilGUI
+import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
@@ -24,6 +25,10 @@ object AnvilGuiModerator {
 
     // 키 입력 받아서 수행할 method를 parameter에 첨부
     fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable) {
+        if (p.gameMode != GameMode.CREATIVE) {
+            p.gameMode = GameMode.CREATIVE
+            p.sendMessage("§6§lIF: §7Anvil 사용을 위해 Creative로 변경했습니다.")
+        }
         AnvilGUI.Builder()
             .itemLeft(ItemStack(Material.BOOK_AND_QUILL))
             .itemRight(itemRight)
