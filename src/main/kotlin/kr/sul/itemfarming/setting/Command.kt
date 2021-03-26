@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting
 
-import kr.sul.itemfarming.setting.gui.NodeRank
+import kr.sul.itemfarming.setting.gui.node.NodeRankListMgr
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -11,7 +11,7 @@ object Command : CommandExecutor {
         if (sender !is Player) {
             return true
         }
-        NodeRank.NodeRankListMgr.openRankListGui(sender)
+        NodeRankListMgr.openCurrentNodeListGui(sender, null)
         return true
     }
 }

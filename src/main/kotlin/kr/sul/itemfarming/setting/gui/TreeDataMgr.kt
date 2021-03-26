@@ -1,6 +1,7 @@
 package kr.sul.itemfarming.setting.gui
 
 import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.itemfarming.setting.gui.node.NodeRank
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.io.IOException

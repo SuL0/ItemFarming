@@ -1,14 +1,8 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.setting.Command
-import kr.sul.itemfarming.setting.gui.NodeCategory
-import kr.sul.itemfarming.setting.gui.NodeRank
 import org.bukkit.Bukkit
-import org.bukkit.event.Event
-import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -24,9 +18,6 @@ class Main : JavaPlugin(), Listener {
 
     private fun registerClasses() {
         getCommand("ItemFarming").executor = Command
-        Bukkit.getPluginManager().registerEvents(NodeRank.NodeRankListMgr, this)
-        Bukkit.getPluginManager().registerEvents(NodeCategory.NodeCategoryListMgr, this)
-//        Bukkit.getPluginManager().registerEvents(LeafItemGuiMgr, this)
         Bukkit.getPluginManager().registerEvents(this, this)
     }
 
