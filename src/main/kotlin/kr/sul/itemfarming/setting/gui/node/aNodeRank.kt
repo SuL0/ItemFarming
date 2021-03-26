@@ -42,15 +42,15 @@ class NodeRank(override var name: String, override var chance: Double, override 
 
 object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
     override val NODE_CLASS = NodeRank::class.java
-    override val NODE_TYPE_NAME = "Rank"
-    override val NODE_TYPE_COLOR = "§4§l"
+    override val NODE_TYPE_NAME = NodeRank.NOTATION_NAME
+    override val NODE_TYPE_COLOR = NodeRank.NOTATION_COLOR
     override val CHILD_NODE_TYPE_NAME = "Category"
 
     override fun getGuiCurrentNodeList(p: Player): ArrayList<NodeRank> {
         return TreeDataMgr.rootNodeList
     }
 
-    override val GUI_NAME = "§f!IF: §c->§fRank list"
+    override val GUI_NAME = "§f!IF: Null§c->§fRank List"
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { _, name, chance -> NodeRank(name, chance, arrayListOf()) }
 

@@ -47,7 +47,7 @@ class NodeItem: ParentNodeContainer<NodeCategory> {
 
 // 페이지 추가
 object LeaftItemListMgr: Listener {
-    private const val GUI_NAME = "§f!IF: Category§c->§fItem list"
+    private const val GUI_NAME = "§f!IF: Category§c->§fItem List"
     private val CURRENT_GUI_NODE_CLASS = NodeCategory::class.java
     private val CATEGORY_ITEM_MATERIAL = Material.WOOL
     private val helpItem = ItemStack(Material.WALL_SIGN).nameIB("§e§l도움말")

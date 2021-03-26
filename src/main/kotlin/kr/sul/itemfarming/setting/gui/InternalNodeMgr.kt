@@ -2,6 +2,9 @@ package kr.sul.itemfarming.setting.gui
 
 import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
+import kr.sul.itemfarming.setting.gui.node.NodeCategory
+import kr.sul.itemfarming.setting.gui.node.NodeRank
+import kr.sul.itemfarming.setting.gui.node.NodeRankListMgr
 import kr.sul.itemfarming.setting.gui.nodecompponent.ChildNodeContainer
 import kr.sul.itemfarming.setting.gui.nodecompponent.InternalNode
 import kr.sul.servercore.util.ItemBuilder.loreIB
@@ -47,6 +50,11 @@ abstract class InternalNodeMgr<T: InternalNode> {
         ItemStack(Material.BOOK_AND_QUILL)
             .nameIB("${NODE_TYPE_COLOR}${NODE_TYPE_NAME} 추가").loreIB(" §7└ ${NODE_TYPE_NAME}를 새로 생성합니다.", 2)
     }
+    // Only NodeCategory용 NodeRank로 돌아가기 버튼
+    private val goToNodeRankGuiButton: ItemStack by lazy {
+        ItemStack(Material.CHORUS_FRUIT)
+            .nameIB("§2§l이전 GUI로 돌아가기").loreIB(" §7└ NodeRank List를 나열한 GUI로 돌아갑니다.", 2)
+    }
     val listener = ListenUp() // per Player의 GUI Interact용 Listener
 
 
@@ -72,7 +80,11 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
         // Node 추가 버튼
         inv.setItem(54, createCurrentNodeButton)
-
+        // Only NodeCategory용 NodeRank로 돌아가기 버튼
+        if (NODE_CLASS == NodeCategory::class.java) {
+            inv.setItem(62, goToNodeRankGuiButton)
+        }
+        // GUI 식별용 색깔 아이템
         for (i in 63..71) {
             inv.setItem(i, itemForidentificationInGui)
         }
@@ -147,6 +159,11 @@ abstract class InternalNodeMgr<T: InternalNode> {
                     else if (e.currentItem.isSimilar(createCurrentNodeButton)) {
                         this@InternalNodeMgr.createCurrentNodeObjWithGui(p)
                     }
+
+                    // Only NodeCategory용 NodeRank로 돌아가기 버튼
+                    else if (e.currentItem.isSimilar(goToNodeRankGuiButton)) {
+                        NodeRankListMgr.openCurrentNodeListGui(p, null)
+                    }
                 }
 
 
@@ -174,13 +191,17 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
 
 
-    // Node 공통 유틸
+    // InternalNode 공통 유틸
     companion object {
         // GUI 띄워서 Rank List, Category List, Item List 를 표시할 때 쓰는 아이템 반환
         // materialItem은 그냥 Material에 durability만 포함했다고 보면 됨 (e.g. colored wool)
-        fun makeItemForGuiDisplay(materialItem: ItemStack, internalNodeObj: InternalNode, currentClassName: String, childClassName: String): ItemStack {
-            return materialItem.clone().nameIB("§4§l[${currentClassName.toUpperCase()}] §f${internalNodeObj.name}")
-                .loreIB(" §6└ ${internalNodeObj.chance}%")
+        fun makeItemForGuiDisplay(materialItem: ItemStack, currentNodeObj: InternalNode, currentClassName: String, childClassName: String): ItemStack {
+            val color = run {
+                if (currentNodeObj is NodeRank) NodeRank.NOTATION_COLOR
+                else NodeCategory.NOTATION_COLOR
+            }
+            return materialItem.clone().nameIB("$color[${currentClassName.toUpperCase()}] §f${currentNodeObj.name}")
+                .loreIB(" §6└ ${currentNodeObj.chance}%")
                 .loreIB("")
                 .loreIB("      §9§lClick §7: 해당 ${currentClassName}에 종속된 $childClassName List를 GUI를 새로 열어 나열합니다.", 2)
                 .loreIB("§9§lShift§7+§9§lClick §7: 해당 ${currentClassName}의 세부 설정을 변경합니다.")

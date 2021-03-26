@@ -20,6 +20,7 @@ class NodeCategory(override var name: String, override val parentNode: NodeRank,
     }
     companion object {
         const val NOTATION_NAME = "Category"
+        const val NOTATION_COLOR = "§2§l"
     }
 }
 //
@@ -123,8 +124,8 @@ class NodeCategory(override var name: String, override val parentNode: NodeRank,
 
 object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     override val NODE_CLASS = NodeCategory::class.java
-    override val NODE_TYPE_NAME = "Category"
-    override val NODE_TYPE_COLOR = "§2§l"
+    override val NODE_TYPE_NAME = NodeCategory.NOTATION_NAME
+    override val NODE_TYPE_COLOR = NodeCategory.NOTATION_COLOR
     override val CHILD_NODE_TYPE_NAME = "Item" // 아 씨발 이건 그럼 뭐라하지 (밑의 GUI에서 Parent, Child 문제때문. 이건 Parent - Child - ? )
 
 
@@ -132,14 +133,14 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java).childNodeList
     }
 
-    override val GUI_NAME = "§f!IF: Rank§c->§fCategory list"
+    override val GUI_NAME = "§f!IF: Rank§c->§fCategory List"
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { p, name, chance ->
         val viewingGuiParentNode = getGuiParentNode(p)
         NodeCategory(name, viewingGuiParentNode, chance, arrayListOf())
     }
 
-    override val itemForidentificationInGui = ItemStack(Material.RED_SHULKER_BOX).nameIB("§f")
+    override val itemForidentificationInGui = ItemStack(Material.GREEN_SHULKER_BOX).nameIB("§f")
     override fun setGuiParentNode(p: Player, parentNode: InternalNode?) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, parentNode!!)
     }
