@@ -62,7 +62,8 @@ abstract class InternalNodeMgr<T: InternalNode> {
     fun openCurrentNodeListGui(p: Player, parentNode: InternalNode?) {
         setGuiParentNode(p, parentNode)
 
-        val inv = Bukkit.createInventory(null, 72, GUI_NAME)
+        // TODO: GUI_NAME 기반 인식으로 인한 Listener 불능
+        val inv = Bukkit.createInventory(null, 72, TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME))
         val nodeMaterialItem = ItemStack(NODE_ITEM_MATERIAL)
 
 
@@ -191,7 +192,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
 
 
-    // InternalNode 공통 유틸
+    // InternalNode 전용 공통 유틸
     companion object {
         // GUI 띄워서 Rank List, Category List, Item List 를 표시할 때 쓰는 아이템 반환
         // materialItem은 그냥 Material에 durability만 포함했다고 보면 됨 (e.g. colored wool)

@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 // Internal node
-class NodeCategory(override var name: String, override val parentNode: NodeRank, override var chance: Double, override val childNodeList: ArrayList<NodeItem>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItem> {
+class NodeCategory(override val parentNode: NodeRank, override var name: String, override var chance: Double, override val childNodeList: ArrayList<NodeItem>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItem> {
 
     // parentNode에 연결(link)
     init {
@@ -137,7 +137,7 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { p, name, chance ->
         val viewingGuiParentNode = getGuiParentNode(p)
-        NodeCategory(name, viewingGuiParentNode, chance, arrayListOf())
+        NodeCategory(viewingGuiParentNode, name, chance, arrayListOf())
     }
 
     override val itemForidentificationInGui = ItemStack(Material.GREEN_SHULKER_BOX).nameIB("§f")

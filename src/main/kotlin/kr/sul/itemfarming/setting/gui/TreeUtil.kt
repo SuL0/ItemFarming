@@ -1,11 +1,15 @@
 package kr.sul.itemfarming.setting.gui
 
 import kr.sul.itemfarming.Main
+import kr.sul.itemfarming.setting.gui.node.NodeCategory
+import kr.sul.itemfarming.setting.gui.node.NodeItem
+import kr.sul.itemfarming.setting.gui.node.NodeRank
 import kr.sul.servercore.util.ItemBuilder.clearLoreIB
 import kr.sul.servercore.util.ItemBuilder.loreIB
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
+import java.util.*
 
 object TreeUtil {
 
@@ -14,6 +18,38 @@ object TreeUtil {
             val firstLore = item.itemMeta.lore[0]
             item.clearLoreIB()
             item.loreIB(firstLore)
+        }
+
+        // Null -> Rank -> Category(parentNode에 들어갈 수 있는 최하위 노드) -> Item List
+        fun getAppropriateGuiName(parentNode: Any?, currentNodeName: String): String {
+            when (parentNode) {
+                null -> {
+                    return "§7§lNull " +
+                            "§c-> §f$currentNodeName List"
+                }
+                is NodeRank -> {
+                    return "§7§lNull " +
+                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.name} " +
+                            "§c-> §f$currentNodeName List"
+                }
+                is NodeCategory -> {
+                    return "§7§lNull " +
+                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.parentNode.name} " +
+                            "§f-> ${NodeCategory.NOTATION_COLOR}${parentNode.name} " +
+                            "§c-> §f$currentNodeName List"
+                }
+                else -> throw Exception("${parentNode::class.java} | $currentNodeName")
+            }
+        }
+
+        // 인자가 NodeRank | NodeCategory | NodeItem 중 하나라면 그것의 name을 반환해줌
+        fun getNodeName(node: Any): String {
+            return when (node) {
+                is NodeRank -> node.name
+                is NodeCategory -> node.name
+                is NodeItem -> node.displayName
+                else -> throw Exception("${node::class.java}")
+            }
         }
     }
 
@@ -41,12 +77,12 @@ object TreeUtil {
             }
         }
         // Anvil GUI를 넘나들어야 하기 때문에, onInvClose 때 굳이 removeMetaData를 하지 않음
-        fun setViewingGuiParentNode(p: Player, currentGuiNode: Any?) {
-            if (currentGuiNode == null) {
+        fun setViewingGuiParentNode(p: Player, parentNode: Any?) {
+            if (parentNode == null) {
                 p.removeMetadata(VIEWING_GUI_PARENTNODE_KEY, Main.plugin)
                 return
             }
-            p.setMetadata(VIEWING_GUI_PARENTNODE_KEY, FixedMetadataValue(Main.plugin, currentGuiNode))
+            p.setMetadata(VIEWING_GUI_PARENTNODE_KEY, FixedMetadataValue(Main.plugin, parentNode))
         }
     }
 }
