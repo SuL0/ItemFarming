@@ -133,7 +133,7 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java).childNodeList
     }
 
-    override val GUI_NAME = "§f!IF: Rank§c->§fCategory List"
+    override val GUI_NAME_PREFIX = "§f!IF: §C§a§t§e§g§o§r§y"
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { p, name, chance ->
         val viewingGuiParentNode = getGuiParentNode(p)

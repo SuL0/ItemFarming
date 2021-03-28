@@ -33,7 +33,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
     // GUI 관련
     abstract fun getGuiCurrentNodeList(p: Player): ArrayList<T>  // per 플레이어 기준
 
-    abstract val GUI_NAME: String
+    abstract val GUI_NAME_PREFIX: String // GUI가 NodeRank에서 열린 GUI라는 것을 위한 식별용임 (Listener에서 필요)
     abstract val NODE_ITEM_MATERIAL: Material
     abstract val howToCreateCurrentNodeObj: TriConsumer<Player, String, Double>
 
@@ -63,7 +63,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
         setGuiParentNode(p, parentNode)
 
         // TODO: GUI_NAME 기반 인식으로 인한 Listener 불능
-        val inv = Bukkit.createInventory(null, 72, TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME))
+        val inv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
         val nodeMaterialItem = ItemStack(NODE_ITEM_MATERIAL)
 
 
@@ -139,11 +139,11 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
         @EventHandler(priority = EventPriority.HIGH)
         fun onClick(e: InventoryClickEvent) {
-            if (e.isCancelled) return
+            if (e.isCancelled || !e.whoClicked.isOp) return
             val p = e.whoClicked as Player
-            if (e.clickedInventory?.name == GUI_NAME && e.currentItem != null) {
+            if (e.clickedInventory?.name?.startsWith(GUI_NAME_PREFIX) == true && e.currentItem != null) {
                 e.isCancelled = true
-                checkGuiParentNodeIsValid(p) // false일 시 내부에서 throw Exception
+                checkGuiParentNodeIsValid(p) // GUI 2차 검증. false일 시 내부에서 throw Exception
 
                 // 왼 클릭
                 if (e.isLeftClick && !e.isShiftClick) {

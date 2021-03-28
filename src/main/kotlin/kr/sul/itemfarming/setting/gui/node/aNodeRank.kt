@@ -50,7 +50,7 @@ object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
         return TreeDataMgr.rootNodeList
     }
 
-    override val GUI_NAME = "§f!IF: Null§c->§fRank List"
+    override val GUI_NAME_PREFIX = "§f!IF: §R§a§n§k" // GUI가 NodeRank에서 열린 GUI라는 것을 위한 식별용임 (Listener에서 필요)
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { _, name, chance -> NodeRank(name, chance, arrayListOf()) }
 
