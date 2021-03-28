@@ -1,5 +1,5 @@
 package kr.sul.itemfarming.setting.gui.nodecompponent
 
-interface ParentNodeContainer<T> {
+interface ParentNodeContainer<T: Any> {
     val parentNode: T
 }
