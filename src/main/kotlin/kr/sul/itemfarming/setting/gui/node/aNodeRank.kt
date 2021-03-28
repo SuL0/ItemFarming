@@ -32,29 +32,21 @@ class NodeRank(override var name: String, override var chance: Double, override 
 
 
 
-
-
-
-
-
-
-
-
 object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
     override val NODE_CLASS = NodeRank::class.java
     override val NODE_TYPE_NAME = NodeRank.NOTATION_NAME
     override val NODE_TYPE_COLOR = NodeRank.NOTATION_COLOR
-    override val CHILD_NODE_TYPE_NAME = "Category"
+    override val CHILD_NODE_TYPE_NAME = NodeCategory.NOTATION_NAME
 
     override fun getGuiCurrentNodeList(p: Player): ArrayList<NodeRank> {
         return TreeDataMgr.rootNodeList
     }
 
-    override val GUI_NAME_PREFIX = "§f!IF: §R§a§n§k" // GUI가 NodeRank에서 열린 GUI라는 것을 위한 식별용임 (Listener에서 필요)
+    override val GUI_NAME_PREFIX = "§I§F§:§R§a§n§k" // GUI가 NodeRank에서 열린 GUI라는 것을 위한 식별용임 (Listener에서 필요)
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { _, name, chance -> NodeRank(name, chance, arrayListOf()) }
 
-    override val itemForidentificationInGui = ItemStack(Material.RED_SHULKER_BOX).nameIB("§f")
+    override val itemForidentificationInGuiBottom = ItemStack(Material.RED_SHULKER_BOX).nameIB("§f")
     override fun setGuiParentNode(p: Player, parentNode: InternalNode?) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, null)  // Metadata에 null 저장 (최상위 노드들을 보고 있기 때문)
     }
@@ -71,6 +63,13 @@ object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
         NodeCategoryListMgr.openCurrentNodeListGui(p, currentNode)
     }
 }
+
+
+
+
+
+
+
 
 
 

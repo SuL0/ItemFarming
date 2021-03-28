@@ -37,7 +37,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
     abstract val NODE_ITEM_MATERIAL: Material
     abstract val howToCreateCurrentNodeObj: TriConsumer<Player, String, Double>
 
-    abstract val itemForidentificationInGui: ItemStack
+    abstract val itemForidentificationInGuiBottom: ItemStack
     abstract fun setGuiParentNode(p: Player, parentNode: InternalNode?)
     abstract fun getGuiParentNode(p: Player): InternalNode?
     abstract fun checkGuiParentNodeIsValid(p: Player)  // false일 시 내부에서 throw Exception
@@ -51,18 +51,17 @@ abstract class InternalNodeMgr<T: InternalNode> {
             .nameIB("${NODE_TYPE_COLOR}${NODE_TYPE_NAME} 추가").loreIB(" §7└ ${NODE_TYPE_NAME}를 새로 생성합니다.", 2)
     }
     // Only NodeCategory용 NodeRank로 돌아가기 버튼
-    private val goToNodeRankGuiButton: ItemStack by lazy {
+    private val goToRankListGuiButton: ItemStack by lazy {
         ItemStack(Material.CHORUS_FRUIT)
             .nameIB("§2§l이전 GUI로 돌아가기").loreIB(" §7└ NodeRank List를 나열한 GUI로 돌아갑니다.", 2)
     }
-    val listener = ListenUp() // per Player의 GUI Interact용 Listener
+    private val listener = ListenUp() // per Player의 GUI Interact용 Listener
 
 
     // ParentNode - CurrentNode 에 해당하는 GUI 띄우기
     fun openCurrentNodeListGui(p: Player, parentNode: InternalNode?) {
         setGuiParentNode(p, parentNode)
 
-        // TODO: GUI_NAME 기반 인식으로 인한 Listener 불능
         val inv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
         val nodeMaterialItem = ItemStack(NODE_ITEM_MATERIAL)
 
@@ -83,18 +82,18 @@ abstract class InternalNodeMgr<T: InternalNode> {
         inv.setItem(54, createCurrentNodeButton)
         // Only NodeCategory용 NodeRank로 돌아가기 버튼
         if (NODE_CLASS == NodeCategory::class.java) {
-            inv.setItem(62, goToNodeRankGuiButton)
+            inv.setItem(62, goToRankListGuiButton)
         }
         // GUI 식별용 색깔 아이템
         for (i in 63..71) {
-            inv.setItem(i, itemForidentificationInGui)
+            inv.setItem(i, itemForidentificationInGuiBottom)
         }
         p.openInventory(inv)
     }
 
 
 
-    // Anvil[이름] -> Anvil[확률] 띄워서 입력받고, 결과물로 Node Obj(Only InternalNode) 생성시키기
+    // Node 추가 버튼 눌렀을 때. Anvil[이름] -> Anvil[확률] 띄워서 입력받고, 결과물로 Node Obj(Only InternalNode) 생성시키기
     private fun createCurrentNodeObjWithGui(p: Player) {
         // !: 1차 Anvil GUI [Node 이름 입력]
         AnvilGuiModerator.open(p, "1. $NODE_TYPE_NAME 이름 입력", { inputName ->
@@ -132,7 +131,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
 
     // per Player의 GUI Interact용 Listener
-    inner class ListenUp: Listener {
+    private inner class ListenUp: Listener {
         init {
             Bukkit.getPluginManager().registerEvents(this, plugin)
         }
@@ -162,15 +161,15 @@ abstract class InternalNodeMgr<T: InternalNode> {
                     }
 
                     // Only NodeCategory용 NodeRank로 돌아가기 버튼
-                    else if (e.currentItem.isSimilar(goToNodeRankGuiButton)) {
+                    else if (e.currentItem.isSimilar(goToRankListGuiButton)) {
                         NodeRankListMgr.openCurrentNodeListGui(p, null)
                     }
                 }
 
 
 
-                // 아이템 쉬프트 왼클릭 시 Management GUI (Rename, Edit Chance, Delete)
-                else if (e.isShiftClick && e.isLeftClick && e.currentItem.type == NODE_ITEM_MATERIAL) {
+                // 아이템 우클릭 시 Management GUI (Rename, Edit Chance, Delete)
+                else if (e.isRightClick && e.currentItem.type == NODE_ITEM_MATERIAL) {
                     val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
                     NodeManagementGui.Builder().run {
                         setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
@@ -204,8 +203,8 @@ abstract class InternalNodeMgr<T: InternalNode> {
             return materialItem.clone().nameIB("$color[${currentClassName.toUpperCase()}] §f${currentNodeObj.name}")
                 .loreIB(" §6└ ${currentNodeObj.chance}%")
                 .loreIB("")
-                .loreIB("      §9§lClick §7: 해당 ${currentClassName}에 종속된 $childClassName List를 GUI를 새로 열어 나열합니다.", 2)
-                .loreIB("§9§lShift§7+§9§lClick §7: 해당 ${currentClassName}의 세부 설정을 변경합니다.")
+                .loreIB(" §9§lLeft Click §7: 해당 ${currentClassName}에 종속된 $childClassName List를 GUI를 새로 열어 나열합니다.", 2)
+                .loreIB("§9§lRight Click §7: 해당 ${currentClassName}의 세부 설정을 변경합니다.")
         }
 
         // 위에서 생성한 아이템을 GUI에서 클릭했을 때, 그걸 다시 NodeRank, NodeCategory, NodeItem으로 바꿔주는 역할
@@ -213,15 +212,16 @@ abstract class InternalNodeMgr<T: InternalNode> {
             val whereToCut = item.itemMeta.displayName.indexOf(" ")+1
             val pureName = item.itemMeta.displayName.substring(whereToCut)
             val clickedNodeName = ChatColor.stripColor(pureName)
-            return getNodeTypeObjFromName(clazz, clickedNodeName, whereToFind)
+            return searchObjInGivenListWithName(clazz, clickedNodeName, whereToFind)
         }
-        private fun <T: InternalNode> getNodeTypeObjFromName(clazz: Class<T>, name: String, whereToFind: List<T>): T {
+        private fun <T: InternalNode> searchObjInGivenListWithName(clazz: Class<T>, name: String, whereToFind: List<T>): T {
             whereToFind.forEach {
                 if (it.name == name) {
                     return it
                 }
             }
 
+            // 로그용 코드
             val whereToFindLog = StringBuilder("")
             whereToFind.forEach {
                 whereToFindLog.append("'${it.name}'")

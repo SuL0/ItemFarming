@@ -9,7 +9,6 @@ import kr.sul.servercore.util.ItemBuilder.loreIB
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
-import java.util.*
 
 object TreeUtil {
 
@@ -24,19 +23,19 @@ object TreeUtil {
         fun getAppropriateGuiName(parentNode: Any?, currentNodeName: String): String {
             when (parentNode) {
                 null -> {
-                    return "§7§lNull " +
-                            "§c-> §f$currentNodeName List"
+                    return "§8§lN " +
+                            "§c-> $currentNodeName List"
                 }
                 is NodeRank -> {
-                    return "§7§lNull " +
+                    return "§8§lN " +
                             "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.name} " +
-                            "§c-> §f$currentNodeName List"
+                            "§c-> $currentNodeName List"
                 }
                 is NodeCategory -> {
-                    return "§7§lNull " +
+                    return "§8§lN " +
                             "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.parentNode.name} " +
                             "§f-> ${NodeCategory.NOTATION_COLOR}${parentNode.name} " +
-                            "§c-> §f$currentNodeName List"
+                            "§c-> $currentNodeName List"
                 }
                 else -> throw Exception("${parentNode::class.java} | $currentNodeName")
             }
@@ -67,13 +66,13 @@ object TreeUtil {
             throw Exception("viewingGuiParentNode가 null임을 기대받았지만 아니었습니다. ${p.name} | ${p.getMetadata(VIEWING_GUI_PARENTNODE_KEY)[0].value()?.javaClass}")
         }
         // p가 보고있는 GUI의 ParentNode 가져오기 (Metadata에서 가져옴)
-        fun <T> getViewingGuiParentNode(p: Player, castClazz: Class<T>): T {
+        fun <T> getViewingGuiParentNode(p: Player, parentNodeClass: Class<T>): T {
             try {
-                return castClazz.cast(p.getMetadata(VIEWING_GUI_PARENTNODE_KEY)[0].value())
+                return parentNodeClass.cast(p.getMetadata(VIEWING_GUI_PARENTNODE_KEY)[0].value())
                 // or
                 // p.getMetadata(CURRENT_GUI_NODE_KEY)[0].value() as T
             } catch (e: ClassCastException) {
-                throw Exception("viewingGuiParentNode가 ${castClazz.name}임을 기대받았지만 아니었습니다. ${p.name} | ${p.getMetadata(VIEWING_GUI_PARENTNODE_KEY)[0].value()?.javaClass}")
+                throw Exception("viewingGuiParentNode가 ${parentNodeClass.name}임을 기대받았지만 아니었습니다. ${p.name} | ${p.getMetadata(VIEWING_GUI_PARENTNODE_KEY)[0].value()?.javaClass}")
             }
         }
         // Anvil GUI를 넘나들어야 하기 때문에, onInvClose 때 굳이 removeMetaData를 하지 않음
