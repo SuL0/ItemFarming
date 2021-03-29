@@ -47,13 +47,13 @@ object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { _, name, chance -> NodeRank(name, chance, arrayListOf()) }
 
     override val itemForidentificationInGuiBottom = ItemStack(Material.RED_SHULKER_BOX).nameIB("§f")
-    override fun setGuiParentNode(p: Player, parentNode: InternalNode?) {
+    override fun setViewingGuiParentNode(p: Player, parentNode: InternalNode?) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, null)  // Metadata에 null 저장 (최상위 노드들을 보고 있기 때문)
     }
-    override fun getGuiParentNode(p: Player): InternalNode? { // 사실상 무조건 null만 줌
+    override fun getViewingGuiParentNode(p: Player): InternalNode? { // 사실상 무조건 null만 줌
         return null // null -> NodeRank List (CurrentNode)
     }
-    override fun checkGuiParentNodeIsValid(p: Player) {
+    override fun checkViewingGuiParentNodeIsValid(p: Player) {
         TreeUtil.MetaViewingGuiParentNodeUtil.checkIfViewingGuiParentNodeIsNull(p)
     }
 

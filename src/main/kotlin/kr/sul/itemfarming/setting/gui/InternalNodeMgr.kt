@@ -38,9 +38,9 @@ abstract class InternalNodeMgr<T: InternalNode> {
     abstract val howToCreateCurrentNodeObj: TriConsumer<Player, String, Double>
 
     abstract val itemForidentificationInGuiBottom: ItemStack
-    abstract fun setGuiParentNode(p: Player, parentNode: InternalNode?)
-    abstract fun getGuiParentNode(p: Player): InternalNode?
-    abstract fun checkGuiParentNodeIsValid(p: Player)  // false일 시 내부에서 throw Exception
+    abstract fun setViewingGuiParentNode(p: Player, parentNode: InternalNode?)
+    abstract fun getViewingGuiParentNode(p: Player): InternalNode?
+    abstract fun checkViewingGuiParentNodeIsValid(p: Player)  // false일 시 내부에서 throw Exception
 
     abstract fun goToChildNodeListGui(p: Player, currentNode: T)
     // abstract end
@@ -60,7 +60,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
     // ParentNode - CurrentNode 에 해당하는 GUI 띄우기
     fun openCurrentNodeListGui(p: Player, parentNode: InternalNode?) {
-        setGuiParentNode(p, parentNode)
+        setViewingGuiParentNode(p, parentNode)
 
         val inv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
         val nodeMaterialItem = ItemStack(NODE_ITEM_MATERIAL)
@@ -113,13 +113,13 @@ abstract class InternalNodeMgr<T: InternalNode> {
                     val inputChance = s_inputChance.toDouble()
                     p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §f$inputName : $inputChance% §7를 새로 생성했습니다.")
                     howToCreateCurrentNodeObj.accept(p, inputName, inputChance)
-                    this.openCurrentNodeListGui(p, getGuiParentNode(p))
+                    this.openCurrentNodeListGui(p, getViewingGuiParentNode(p))
                 } catch (ignored: Exception) {
                     p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
                 }
             }, {
                 Bukkit.getScheduler().runTask(plugin) {
-                    this.openCurrentNodeListGui(p, getGuiParentNode(p))
+                    this.openCurrentNodeListGui(p, getViewingGuiParentNode(p))
                 }
             })
         }, {
@@ -142,7 +142,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
             val p = e.whoClicked as Player
             if (e.inventory?.name?.startsWith(GUI_NAME_PREFIX) == true) {
                 e.isCancelled = true
-                checkGuiParentNodeIsValid(p) // GUI 2차 검증. false일 시 내부에서 throw Exception
+                checkViewingGuiParentNodeIsValid(p) // GUI 2차 검증. false일 시 내부에서 throw Exception
                 if (e.inventory == e.clickedInventory && e.currentItem != null) {
 
                     // 왼 클릭
@@ -175,7 +175,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
                             setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
                             internalNodeObjToEdit = clickedNode
                             backToPreviousGuiMethod =
-                                Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getGuiParentNode(p)) }
+                                Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getViewingGuiParentNode(p)) }
                             setDeleteButton((clickedNode as ChildNodeContainer<*>).childNodeList.size) {
                                 getGuiCurrentNodeList(p).remove(clickedNode)
                             }

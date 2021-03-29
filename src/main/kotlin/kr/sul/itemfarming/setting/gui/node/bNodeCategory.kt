@@ -41,18 +41,18 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     override val GUI_NAME_PREFIX = "§I§F§:§C§a§t§e§g§o§r§y"
     override val NODE_ITEM_MATERIAL = Material.WOOL
     override val howToCreateCurrentNodeObj = TriConsumer<Player, String, Double> { p, name, chance ->
-        val viewingGuiParentNode = getGuiParentNode(p)
+        val viewingGuiParentNode = getViewingGuiParentNode(p)
         NodeCategory(viewingGuiParentNode, name, chance, arrayListOf())
     }
 
     override val itemForidentificationInGuiBottom = ItemStack(Material.GREEN_SHULKER_BOX).nameIB("§f")
-    override fun setGuiParentNode(p: Player, parentNode: InternalNode?) {
+    override fun setViewingGuiParentNode(p: Player, parentNode: InternalNode?) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, parentNode!!)
     }
-    override fun getGuiParentNode(p: Player): NodeRank {
+    override fun getViewingGuiParentNode(p: Player): NodeRank {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java)
     }
-    override fun checkGuiParentNodeIsValid(p: Player) {
+    override fun checkViewingGuiParentNodeIsValid(p: Player) {
         TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java) // Valid하지 않다면, 해당 메소드에서 throw Exception을 해줌
     }
 
