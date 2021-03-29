@@ -140,45 +140,47 @@ abstract class InternalNodeMgr<T: InternalNode> {
         fun onClick(e: InventoryClickEvent) {
             if (e.isCancelled || !e.whoClicked.isOp) return
             val p = e.whoClicked as Player
-            if (e.clickedInventory?.name?.startsWith(GUI_NAME_PREFIX) == true && e.currentItem != null) {
+            if (e.inventory?.name?.startsWith(GUI_NAME_PREFIX) == true) {
                 e.isCancelled = true
                 checkGuiParentNodeIsValid(p) // GUI 2차 검증. false일 시 내부에서 throw Exception
+                if (e.inventory == e.clickedInventory && e.currentItem != null) {
 
-                // 왼 클릭
-                if (e.isLeftClick && !e.isShiftClick) {
+                    // 왼 클릭
+                    if (e.isLeftClick && !e.isShiftClick) {
 
-                    // Node 선택 버튼 클릭 -> 다음 GUI로 넘어가기
-                    if (e.currentItem.type == NODE_ITEM_MATERIAL) {
-                        val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
-                        // !: Child Node List GUI로 넘어가기
-                        this@InternalNodeMgr.goToChildNodeListGui(p, clickedNode)
-                    }
-
-
-                    // Node 추가 버튼 클릭
-                    else if (e.currentItem.isSimilar(createCurrentNodeButton)) {
-                        this@InternalNodeMgr.createCurrentNodeObjWithGui(p)
-                    }
-
-                    // Only NodeCategory용 NodeRank로 돌아가기 버튼
-                    else if (e.currentItem.isSimilar(goToRankListGuiButton)) {
-                        NodeRankListMgr.openCurrentNodeListGui(p, null)
-                    }
-                }
-
-
-
-                // 아이템 우클릭 시 Management GUI (Rename, Edit Chance, Delete)
-                else if (e.isRightClick && e.currentItem.type == NODE_ITEM_MATERIAL) {
-                    val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
-                    NodeManagementGui.Builder().run {
-                        setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
-                        internalNodeObjToEdit = clickedNode
-                        backToPreviousGuiMethod = Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getGuiParentNode(p)) }
-                        setDeleteButton((clickedNode as ChildNodeContainer<*>).childNodeList.size) {
-                            getGuiCurrentNodeList(p).remove(clickedNode)
+                        // Node 선택 버튼 클릭 -> 다음 GUI로 넘어가기
+                        if (e.currentItem.type == NODE_ITEM_MATERIAL) {
+                            val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
+                            // !: Child Node List GUI로 넘어가기
+                            this@InternalNodeMgr.goToChildNodeListGui(p, clickedNode)
                         }
-                        this.openManagementGui(p)
+
+
+                        // Node 추가 버튼 클릭
+                        else if (e.currentItem.isSimilar(createCurrentNodeButton)) {
+                            this@InternalNodeMgr.createCurrentNodeObjWithGui(p)
+                        }
+
+                        // Only NodeCategory용 NodeRank로 돌아가기 버튼
+                        else if (e.currentItem.isSimilar(goToRankListGuiButton)) {
+                            NodeRankListMgr.openCurrentNodeListGui(p, null)
+                        }
+                    }
+
+
+                    // 아이템 우클릭 시 Management GUI (Rename, Edit Chance, Delete)
+                    else if (e.isRightClick && e.currentItem.type == NODE_ITEM_MATERIAL) {
+                        val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
+                        NodeManagementGui.Builder().run {
+                            setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
+                            internalNodeObjToEdit = clickedNode
+                            backToPreviousGuiMethod =
+                                Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getGuiParentNode(p)) }
+                            setDeleteButton((clickedNode as ChildNodeContainer<*>).childNodeList.size) {
+                                getGuiCurrentNodeList(p).remove(clickedNode)
+                            }
+                            this.openManagementGui(p)
+                        }
                     }
                 }
             }
