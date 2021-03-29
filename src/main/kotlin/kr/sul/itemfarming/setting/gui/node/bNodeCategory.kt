@@ -34,7 +34,7 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     override val NODE_TYPE_COLOR = NodeCategory.NOTATION_COLOR
     override val CHILD_NODE_TYPE_NAME = NodeItem.NOTATION_NAME
 
-    override fun getGuiCurrentNodeList(p: Player): ArrayList<NodeCategory> {
+    override fun getViewingGuiCurrentNodeList(p: Player): ArrayList<NodeCategory> {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java).childNodeList
     }
 

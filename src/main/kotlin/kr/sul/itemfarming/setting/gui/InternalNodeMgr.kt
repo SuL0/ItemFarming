@@ -30,8 +30,8 @@ abstract class InternalNodeMgr<T: InternalNode> {
     abstract val NODE_TYPE_COLOR: String
     abstract val CHILD_NODE_TYPE_NAME: String
 
-    // GUI 관련
-    abstract fun getGuiCurrentNodeList(p: Player): ArrayList<T>  // per 플레이어 기준
+    // GUI 관련(per Player 기준!)
+    abstract fun getViewingGuiCurrentNodeList(p: Player): ArrayList<T>
 
     abstract val GUI_NAME_PREFIX: String // GUI가 NodeRank에서 열린 GUI라는 것을 위한 식별용임 (Listener에서 필요)
     abstract val NODE_ITEM_MATERIAL: Material
@@ -66,7 +66,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
         val nodeMaterialItem = ItemStack(NODE_ITEM_MATERIAL)
 
 
-        getGuiCurrentNodeList(p).forEach {
+        getViewingGuiCurrentNodeList(p).forEach {
             // Wool item 색상 변경
             if (nodeMaterialItem.durability < 15) {
                 nodeMaterialItem.durability = (nodeMaterialItem.durability + 1).toShort()
@@ -100,7 +100,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
             // Node 새로 생성
 
             // 이름 중복 체크
-            getGuiCurrentNodeList(p).forEach {
+            getViewingGuiCurrentNodeList(p).forEach {
                 if (it.name == inputName) {
                     p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §7의 이름이 §c중복§7됩니다. §f'$inputName'")
                     return@open
@@ -150,7 +150,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
                         // Node 선택 버튼 클릭 -> 다음 GUI로 넘어가기
                         if (e.currentItem.type == NODE_ITEM_MATERIAL) {
-                            val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
+                            val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getViewingGuiCurrentNodeList(p))
                             // !: Child Node List GUI로 넘어가기
                             this@InternalNodeMgr.goToChildNodeListGui(p, clickedNode)
                         }
@@ -170,14 +170,14 @@ abstract class InternalNodeMgr<T: InternalNode> {
 
                     // 아이템 우클릭 시 Management GUI (Rename, Edit Chance, Delete)
                     else if (e.isRightClick && e.currentItem.type == NODE_ITEM_MATERIAL) {
-                        val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getGuiCurrentNodeList(p))
+                        val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getViewingGuiCurrentNodeList(p))
                         NodeManagementGui.Builder().run {
                             setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
                             internalNodeObjToEdit = clickedNode
                             backToPreviousGuiMethod =
                                 Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getViewingGuiParentNode(p)) }
                             setDeleteButton((clickedNode as ChildNodeContainer<*>).childNodeList.size) {
-                                getGuiCurrentNodeList(p).remove(clickedNode)
+                                getViewingGuiCurrentNodeList(p).remove(clickedNode)
                             }
                             this.openManagementGui(p)
                         }
