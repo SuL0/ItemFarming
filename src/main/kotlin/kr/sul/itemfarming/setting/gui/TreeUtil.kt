@@ -24,18 +24,18 @@ object TreeUtil {
             when (parentNode) {
                 null -> {
                     return "§8§lN " +
-                            "§c-> $currentNodeName List"
+                            "§c-> §n$currentNodeName List"
                 }
                 is NodeRank -> {
                     return "§8§lN " +
-                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.name} " +
-                            "§c-> $currentNodeName List"
+                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.name}[${parentNode.chance}%] " +
+                            "§c-> §n$currentNodeName List"
                 }
                 is NodeCategory -> {
                     return "§8§lN " +
-                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.parentNode.name} " +
-                            "§f-> ${NodeCategory.NOTATION_COLOR}${parentNode.name} " +
-                            "§c-> $currentNodeName List"
+                            "§f-> ${NodeRank.NOTATION_COLOR}${parentNode.parentNode.name}[${parentNode.parentNode.chance}%] " +
+                            "§f-> ${NodeCategory.NOTATION_COLOR}${parentNode.name}[${parentNode.chance}%] " +
+                            "§c-> §n$currentNodeName List"
                 }
                 else -> throw Exception("${parentNode::class.java} | $currentNodeName")
             }
