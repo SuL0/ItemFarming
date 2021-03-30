@@ -181,7 +181,7 @@ object NodeItemListMgr: Listener {
                         AnvilGuiModerator.open(p, "Edit) $NODE_TYPE_NAME 확률 입력.", { s_input ->
                             try {
                                 val input = s_input.toDouble()
-                                p.sendMessage("§6§lIF: ${NODE_TYPE_COLOR}[${NODE_TYPE_NAME}] §7${clickedNode.displayName} 의 확률을 §f$s_input% §7로 변경했습니다.")
+                                p.sendMessage("§6§lIF: ${NODE_TYPE_COLOR}[${NODE_TYPE_NAME}] §7${clickedNode.displayName} §7의 확률을 §f$s_input% §7로 변경했습니다.")
                                 clickedNode.chance = input
                                 // 인벤은 아래의 onClose()가 열어줌
                             } catch (ignored: Exception) {

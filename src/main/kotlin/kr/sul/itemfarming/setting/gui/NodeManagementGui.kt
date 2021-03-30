@@ -45,7 +45,7 @@ class NodeManagementGui(private val p: Player,
             }
         }
         if (internalNodeObjToEdit is NodeRank || internalNodeObjToEdit is NodeCategory) {
-            val itemForDisplay = InternalNodeMgr.makeItemForGuiDisplay(ItemStack(Material.WOOL), internalNodeObjToEdit, objToEditClassName, "어차피 지워질거라 필없")
+            val itemForDisplay = InternalNodeMgr.makeItemForGuiDisplay(ItemStack(Material.WOOL), internalNodeObjToEdit, objToEditClassName, "어차피 Lore는 지워질거라 필없")
             TreeUtil.ForCommon.deleteAllLoreExceptFirstLine(itemForDisplay)
             return itemForDisplay
         }
@@ -59,7 +59,7 @@ class NodeManagementGui(private val p: Player,
             AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 확률 입력.", { s_input ->
                 try {
                     val input = s_input.toDouble()
-                    p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7${internalNodeObjToEdit.name} 의 확률을 §f$s_input% §7로 변경했습니다.")
+                    p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7${internalNodeObjToEdit.name} §7의 확률을 §f$s_input% §7로 변경했습니다.")
                     internalNodeObjToEdit.chance = input
                     // 인벤은 아래의 onClose()가 열어줌
                 } catch (ignored: Exception) {
