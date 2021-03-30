@@ -59,7 +59,7 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     // Category Node List로 워프
     // guiNode = parentNode 라고 해도 될 것 같기도 하고. 나도 내가 정해둔 단어들이 헷갈린다
     override fun goToChildNodeListGui(p: Player, currentNode: NodeCategory) {
-        NodeItemListMgr.openCurrentNodeListGui(p, currentNode)
+        NodeItemListMgr.openCurrentNodeListGui(p, currentNode, 1)
     }
 }
 

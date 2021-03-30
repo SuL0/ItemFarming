@@ -24,24 +24,29 @@ object AnvilGuiModerator {
     }
 
     // 키 입력 받아서 수행할 method를 parameter에 첨부
-    fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable) {
+    fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable, itemLeft: ItemStack? = null) {
         if (p.gameMode != GameMode.CREATIVE) {
             p.gameMode = GameMode.CREATIVE
             p.sendMessage("§6§lIF: §7Anvil 사용을 위해 Creative로 변경했습니다.")
         }
-        AnvilGUI.Builder()
-            .itemLeft(ItemStack(Material.BOOK_AND_QUILL))
-            .itemRight(itemRight)
-            .text(text)
-            .onComplete { _, string ->
+        val anvilGuiBuilder = AnvilGUI.Builder().run {
+            if (itemLeft == null) {
+                itemLeft(ItemStack(Material.BOOK_AND_QUILL))
+            } else {
+                itemLeft(itemLeft)  // NodeItem에서 사용됨
+            }
+            itemRight(itemRight)
+            text(text)
+            onComplete { _, string ->
                 runAfterGettingInput.accept(string)
                 return@onComplete AnvilGUI.Response.close()
             }
-            .onClose {
+            onClose {
                 onClose.run()
             }
-            .plugin(Main.plugin)
-            .open(p)
+            plugin(Main.plugin)
+            open(p)
+        }
     }
 
 }
