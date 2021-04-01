@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
@@ -78,7 +79,7 @@ object NodeItemListMgr: Listener {
         NodeItem(viewingGuiParentNode, item, chance)
     }
 
-    val itemForidentificationInGuiBottom = ItemStack(Material.BLUE_SHULKER_BOX).nameIB("§f")
+    private val itemForIdentificationInGuiBottom = ItemStack(Material.BLUE_SHULKER_BOX).nameIB("§f")
     fun setViewingGuiParentNode(p: Player, parentNode: NodeCategory) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, parentNode)
     }
@@ -88,7 +89,7 @@ object NodeItemListMgr: Listener {
     fun checkViewingGuiParentNodeIsValid(p: Player) {
         TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeCategory::class.java) // Valid하지 않다면, 해당 메소드에서 throw Exception을 해줌
     }
-    // NodeItem 전용
+    // NodeItem 전용 ViewingGuiPage MetaData
     private const val VIEWING_GUI_PAGE_KEY = "IF.ViewingGuiPage"
     private fun setViewingGuiPage(p: Player, page: Int) {
         p.setMetadata(VIEWING_GUI_PAGE_KEY, FixedMetadataValue(plugin, page))
@@ -96,12 +97,32 @@ object NodeItemListMgr: Listener {
     private fun getViewingGuiPage(p: Player): Int {
         return p.getMetadata(VIEWING_GUI_PAGE_KEY)[0].asInt()
     }
+    //
+    // NodeItem GUI에 Page를 설정해서 1~6번째 줄 맞는 아이템으로 채우기
+    private fun setUpPageToNodeItemGui(p: Player, nodeItemInv: Inventory, page: Int, nodeItemList: List<NodeItem>) {
+        setViewingGuiPage(p, page)
+        nodeItemInv.setItem(58, ItemStack(Material.IRON_SWORD).nameIB("§e§l- $page Page -"))  // 현재 페이지 표시용 아이템
+        for (guiIndex in 0..53) {
+            val itemIndex = ((page-1)*54)+guiIndex
+            if (nodeItemList.size >= itemIndex+1) {
+                nodeItemInv.setItem(guiIndex, Util.makeItemForGuiDisplay(nodeItemList[itemIndex]))
+            }
+            // 위에 의해서 덮어씌여지지 않는데 불구하고, 아이템이 배치되어 있는 경우 삭제
+            else if (nodeItemInv.getItem(guiIndex) != null) {
+                nodeItemInv.setItem(guiIndex, null)
+            }
+        }
+    }
 
+    private val goToPreviousPageBtn = ItemStack(Material.IRON_INGOT).nameIB("§7§l이전 페이지")
+        .loreIB(" §7└ Item List 이전 페이지로 넘기기")
+    private val goToNextPageBtn = ItemStack(Material.IRON_INGOT).nameIB("§c§l다음 페이지")
+        .loreIB(" §7└ Item List 다 페이지로 넘기기")
 
     private val helpItem = ItemStack(Material.WALL_SIGN).nameIB("§e§l도움말")
         .loreIB("§c§l- 아래 인벤 -")
         .loreIB(" §e- §f§lShift+LeftClick §7: 해당 아이템 Item List에 등록")
-    private val goToCategoryListGuiButton = ItemStack(Material.CHORUS_FRUIT).nameIB("§2§l이전 GUI로 돌아가기")
+    private val goToCategoryListGuiBtn = ItemStack(Material.CHORUS_FRUIT).nameIB("§2§l이전 GUI로 돌아가기")
         .loreIB(" §7└ Category List를 나열한 GUI로 돌아갑니다.", 2)
     private val listener = ListenUp()
 
@@ -110,25 +131,18 @@ object NodeItemListMgr: Listener {
     // NodeCategory - NodeItem 에 해당하는 GUI 띄우기
     fun openCurrentNodeListGui(p: Player, parentNode: NodeCategory, page: Int) {
         TreeUtil.MetaViewingGuiParentNodeUtil.setViewingGuiParentNode(p, parentNode)
-        setViewingGuiPage(p, page)
 
-        val inv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
+        val nodeItemInv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
+        setUpPageToNodeItemGui(p, nodeItemInv, 1, getViewingGuiCurrentNodeList(p))
 
-        val list = getViewingGuiCurrentNodeList(p)
-        for (index in 0..53) {
-            if (list.size < index+1) break
-            inv.setItem(index, Util.makeItemForGuiDisplay(list[index]))
-        }
-
-        // Node 추가하는 법 안내 표지판 아이템
-        inv.setItem(54, helpItem)
-        // NodeCategory로 돌아가기 버튼
-        inv.setItem(62, goToCategoryListGuiButton)
-        // GUI 식별용 색깔 아이템
+        nodeItemInv.setItem(57, goToPreviousPageBtn)  // 이전 페이지
+        nodeItemInv.setItem(59, goToNextPageBtn)  // 다음 페이지
+        nodeItemInv.setItem(54, helpItem)  // Node 추가하는 법 안내 표지판 아이템
+        nodeItemInv.setItem(62, goToCategoryListGuiBtn)  // NodeCategory로 돌아가기 버튼
         for (i in 63..71) {
-            inv.setItem(i, itemForidentificationInGuiBottom)
+            nodeItemInv.setItem(i, itemForIdentificationInGuiBottom)  // GUI 식별용 색깔 아이템
         }
-        p.openInventory(inv)
+        p.openInventory(nodeItemInv)
     }
 
 
@@ -170,9 +184,31 @@ object NodeItemListMgr: Listener {
 
                 // 윗 인벤 클릭
                 if (e.clickedInventory == e.inventory && e.currentItem != null) {
-                    // NodeCategory로 돌아가기 버튼 왼클릭
-                    if (e.isLeftClick && !e.isShiftClick && e.currentItem.isSimilar(goToCategoryListGuiButton)) {
-                        NodeCategoryListMgr.openCurrentNodeListGui(p, getViewingGuiParentNode(p).parentNode)
+                    // 인벤 왼클릭
+                    if (e.isLeftClick && !e.isShiftClick) {
+                        // 이전 페이지
+                        if (e.currentItem.isSimilar(goToPreviousPageBtn)) {
+                            if (getViewingGuiPage(p) <= 1) {
+                                p.sendMessage("§6§lIF: §7현재 페이지가 §f첫번째 §7페이지입니다.")
+                                return
+                            }
+                            setUpPageToNodeItemGui(p, e.clickedInventory, getViewingGuiPage(p)-1, getViewingGuiCurrentNodeList(p))
+                        }
+                        // 다음 페이지
+                        else if (e.currentItem.isSimilar(goToNextPageBtn)) {
+                            if (((getViewingGuiCurrentNodeList(p).size-1) / 54)+1 < getViewingGuiPage(p)+1) {
+                                p.sendMessage("§6§lIF: §7현재 페이지가 §f마지막 §7페이지입니다.")
+                                return
+                            }
+                            setUpPageToNodeItemGui(p, e.clickedInventory, getViewingGuiPage(p)+1, getViewingGuiCurrentNodeList(p))
+                        }
+
+                        // NodeCategory로 돌아가기 버튼 왼클릭
+                        // TODO: GUI에 ItemStack 둘 때 clone돼서 두어지나, 이거 확인하려면
+                        //  val item = 대충 아이템 -> GUI에 item 넣기 -> item을 수정하면 GUI에서도 수정되는지 확인
+                        else if (e.currentItem.isSimilar(goToCategoryListGuiBtn)) {
+                            NodeCategoryListMgr.openCurrentNodeListGui(p, getViewingGuiParentNode(p).parentNode)
+                        }
                     }
 
                     // NodeItem 아이템 우클릭 시 확률 변경
