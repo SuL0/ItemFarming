@@ -17,6 +17,7 @@ class Main : JavaPlugin(), Listener {
     override fun onEnable() {
         plugin = this as Plugin
         registerClasses()
+        TreeDataMgr.loadAll()
     }
 
     override fun onDisable() {
