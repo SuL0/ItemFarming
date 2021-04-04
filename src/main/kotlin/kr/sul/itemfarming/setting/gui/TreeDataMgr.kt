@@ -1,57 +1,89 @@
 package kr.sul.itemfarming.setting.gui
 
+import com.google.gson.GsonBuilder
 import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.node.NodeRank
-import org.bukkit.configuration.file.YamlConfiguration
-import java.io.File
-import java.io.IOException
+import org.bukkit.util.io.BukkitObjectInputStream
+import org.bukkit.util.io.BukkitObjectOutputStream
+import org.json.simple.JSONArray
+import org.json.simple.JSONObject
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
+import java.io.*
 
-// Tree구조 Node와 Leaf 데이터를 관리
+
 object TreeDataMgr {
-    val rootNodeList = arrayListOf<NodeRank>()  // = RankGuiList
-    private val settingFile = File("${plugin.dataFolder}/farmingSetting.yml")
-    private val serializedItemFile = File("${plugin.dataFolder}/internal/serializedItem.yml")
+    val d = "ddasddfd"
+    val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
+    private val settingFile = File("${plugin.dataFolder}/farmingSetting.json")
 
-
+    // TODO: BackUp
     fun saveAll() {
         createFilesIfNotExist()
-        val settingConfig = loadAsConfig(settingFile)
 
-        // 개미굴에 물줄기 내려가듯이 저장
+        // rootNodeList Json화 시키기
+        // 개미굴에 물줄기 내려가듯
+        val rootJsonArray = JSONArray()  // RootNodeList에 해당
+        // NodeRank
         for (rank in rootNodeList) {
-            // rank 저장 (등급 이름)
-            if (!settingConfig.isConfigurationSection(rank.name)) {
-                settingConfig.createSection(rank.name)
-            }
-            val rankSection = settingConfig.getConfigurationSection(rank.name)
+            val rankJson = JSONObject()
+            rankJson["name"] = rank.name
+            rankJson["chance"] = rank.chance
+            val rankChildJsonArray = JSONArray()  // 각 rank의 childNodeList에 해당
+            rankJson["childNodeList"] = rankChildJsonArray
+
+            // NodeCategory
             for (category in rank.childNodeList) {
-                // category 저장 (카테고리 이름)
-                if (!rankSection.isConfigurationSection(category.name)) {
-                    rankSection.createSection(category.name)
-                }
-                val categorySection = rankSection.getConfigurationSection(category.name)
+                val categoryJson = JSONObject()
+                categoryJson["name"] = category.name
+                categoryJson["chance"] = category.chance
+                val categoryChildJsonArray = JSONArray()
+                categoryJson["childNodeList"] = categoryChildJsonArray
+
+                // NodeItem
                 for (item in category.childNodeList) {
-                    // item 저장 (${uuid},${DisplayName or Type}, 확률(Double)) : SerializedItem은 다른 파일에 uuid를 key로 삼아서 저장
+                    val itemJson = JSONObject()
+                    itemJson["nameForReference"] = item.displayName
+                    itemJson["itemStack"] = toBase64(item.item)
+                    itemJson["chance"] = item.chance
 
+                    // Json으로 객체 다 직렬화 한 후, 자신의 parentNode의 childNodeList에 자신을 추가
+                    categoryChildJsonArray.add(itemJson)
                 }
+                rankChildJsonArray.add(categoryJson)
             }
+            rootJsonArray.add(rankJson)
         }
+        val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
+        val finalJson = gsonBuilder.toJson(rootJsonArray)
 
+        val writter = FileWriter(settingFile)
+        val bWritter = BufferedWriter(writter)
         try {
-            settingConfig.save(settingFile)
-        } catch (e: IOException) {
-            e.printStackTrace()
+            bWritter.write(finalJson)
+            bWritter.flush()
+        } catch(ignored: IOException) {
+        } finally {
+            bWritter.close()
+            writter.close()
         }
     }
 
-
-    fun loadAll() {
-        createFilesIfNotExist()
-        val setting = loadAsConfig(settingFile)
-        setting.getKeys(true).forEach {
-
-        }
+    // Bukkit Obj포함 Base64 Encoder/Decoder
+    private fun toBase64(any: Any): String {
+        val outputStream = ByteArrayOutputStream()
+        val dataOutput = BukkitObjectOutputStream(outputStream)
+        dataOutput.writeObject(any)
+        dataOutput.close()
+        return Base64Coder.encodeLines(outputStream.toByteArray())
     }
+    private fun<T: Any> fromBase64(base64Str: String): T {
+        val inputStream = ByteArrayInputStream(Base64Coder.decodeLines(base64Str))
+        val dataInput = BukkitObjectInputStream(inputStream)
+        val returnVal = dataInput.readObject() as T
+        dataInput.close()
+        return returnVal
+    }
+
 
     private fun createFilesIfNotExist() {
         if (!plugin.dataFolder.exists()) {
@@ -63,9 +95,56 @@ object TreeDataMgr {
         }
     }
 
-    private fun loadAsConfig(file: File): YamlConfiguration {
-        val config = YamlConfiguration()
-        config.load(file)
-        return config
+//    fun loadAll() {
+//        createFilesIfNotExist()
+//        val jsonBuilder = GsonBuilder().create()
+//
+//        val fr = FileReader(settingFile)
+//
+//    }
+
+/*
+    fun loadAll() {
+        createFilesIfNotExist()
+        val setting = loadAsConfig(settingFile)
+        setting.getKeys(true).forEach {
+
+        }
     }
+*/
 }
+
+
+
+
+
+
+//data class NodeA(val name: String, var childNodeList: ArrayList<NodeB>)
+//class NodeB(val getParentNode: Supplier<NodeA>, val name: String) {
+//    init {
+//        getParentNode.get().childNodeList.add(this)
+//    }
+//}
+//
+//fun main() {
+//    val nodeA = NodeA("just name of nodeA", arrayListOf())
+//    val nodeB = NodeB({ nodeA }, "just name of nodeB")
+//    val nodeB_2 = NodeB({ nodeA }, "just name of nodeB")
+//
+//    val toJsonObj = nodeA
+//
+//    try {
+//        val jsonBuilder = GsonBuilder().setPrettyPrinting().create()
+//        val json = jsonBuilder.toJson(toJsonObj)
+//        println(json)
+////        val writter = FileWriter(File("C:\\Test\\JsonTest.json"))
+////        try {
+////            writter.write(json)
+////            writter.flush()
+////        } catch(ignored: IOException) {
+////        } finally {
+////            writter.close()
+////        }
+//    } catch (ignored: Exception) {}
+//
+//}

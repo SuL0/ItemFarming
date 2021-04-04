@@ -11,16 +11,19 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.dmulloy2.net/nexus/repository/public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
+    maven("https://jitpack.io/")
     mavenLocal()
 }
 
 val pluginStorage = "C:/Users/PHR/Desktop/PluginStorage"
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    compileOnly("com.destroystokyo.paper", "paper-api", "1.12.2-R0.1-SNAPSHOT")
-    compileOnly("org.spigotmc", "spigot", "1.12.2-R0.1-SNAPSHOT")
+    implementation("com.destroystokyo.paper", "paper-api", "1.12.2-R0.1-SNAPSHOT")
+    implementation("org.spigotmc", "spigot", "1.12.2-R0.1-SNAPSHOT")
 
-    compileOnly("fr.minuskube.inv", "smart-invs", "1.2.7")
+    compileOnly("com.zaxxer", "HikariCP", "4.0.3")
+//    compileOnly("com.github.simplix-softworks", "SimplixStorage", "3.2.2")
+    runtimeOnly("com.google.code.gson", "gson", "2.8.6")
 
     compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/ServerCore_S.jar"))
 }
@@ -38,6 +41,9 @@ spigot {
     }
 }
 
+val shade = configurations.create("shade")
+shade.extendsFrom(configurations.compileOnly.get())
+
 tasks {
     compileJava.get().options.encoding = "UTF-8"
     compileKotlin.get().kotlinOptions.jvmTarget = "1.8"
@@ -52,6 +58,15 @@ tasks {
         archiveFileName.set("${project.name}_S.jar")
         destinationDirectory.set(file(pluginStorage))
 
+//        from(
+//            shade.filter { it.name.startsWith("SimplixStorage") }  // compileOnly 파일 중에 anvilgui만!
+//                .map {
+//                    if (it.isDirectory)
+//                        it
+//                    else
+//                        zipTree(it)
+//                }
+//        )
         finalizedBy(copyPlugin)
     }
 }
