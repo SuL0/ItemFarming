@@ -126,9 +126,9 @@ object NodeItemListMgr: Listener {
     private val goToNextPageBtn = ItemStack(Material.IRON_INGOT).nameIB("§c§l다음 페이지")
         .loreIB(" §7└ Item List 다 페이지로 넘기기")
 
-    private val helpItem = ItemStack(Material.WALL_SIGN).nameIB("§e§l도움말")
-        .loreIB("§c§l- 아래 인벤 -")
-        .loreIB(" §e- §f§lShift+LeftClick §7: 해당 아이템 Item List에 등록")
+    private val helpItem = ItemStack(Material.SIGN).nameIB("${NODE_TYPE_COLOR}${NODE_TYPE_NAME} 추가 하는 방법")
+        .loreIB(" §7└ 플레이어 인벤토리(아래) 에서", 2)
+        .loreIB(" §7└ 추가할 아이템 §9§lShift§7+§9§lLeft Click", 2)
     private val goToCategoryListGuiBtn = ItemStack(Material.CHORUS_FRUIT).nameIB("§2§l이전 GUI로 돌아가기")
         .loreIB(" §7└ Category List를 나열한 GUI로 돌아갑니다.", 2)
     private val listener = ListenUp()
@@ -142,9 +142,9 @@ object NodeItemListMgr: Listener {
         val nodeItemInv = Bukkit.createInventory(null, 72, "$GUI_NAME_PREFIX${TreeUtil.ForCommon.getAppropriateGuiName(parentNode, NODE_TYPE_NAME)}")
         setUpPageToNodeItemGui(p, nodeItemInv, 1, getViewingGuiCurrentNodeList(p))
 
+        nodeItemInv.setItem(54, helpItem)  // Node 추가하는 법 안내 표지판 아이템
         nodeItemInv.setItem(57, goToPreviousPageBtn)  // 이전 페이지
         nodeItemInv.setItem(59, goToNextPageBtn)  // 다음 페이지
-        nodeItemInv.setItem(54, helpItem)  // Node 추가하는 법 안내 표지판 아이템
         // TODO: Test
         nodeItemInv.setItem(62, goToCategoryListGuiBtn)  // NodeCategory로 돌아가기 버튼
 //        goToCategoryListGuiBtn.nameIB("GUI에 과연 변경된 이름이 보일까")
@@ -201,7 +201,7 @@ object NodeItemListMgr: Listener {
                         // 이전 페이지
                         if (e.currentItem.isSimilar(goToPreviousPageBtn)) {
                             if (getViewingGuiPage(p) <= 1) {
-                                p.sendMessage("§6§lIF: §7현재 페이지가 §f첫번째 §7페이지입니다.")
+                                p.sendMessage("§6§lIF: §7현재 페이지가 §f첫 번째 §7페이지입니다.")
                                 return
                             }
                             setUpPageToNodeItemGui(p, e.clickedInventory, getViewingGuiPage(p)-1, getViewingGuiCurrentNodeList(p))
