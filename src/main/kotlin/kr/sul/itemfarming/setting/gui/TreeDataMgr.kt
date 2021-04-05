@@ -6,7 +6,6 @@ import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeItem
 import kr.sul.itemfarming.setting.gui.node.NodeRank
 import org.apache.commons.io.FileUtils
-import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
@@ -15,12 +14,16 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
 import java.io.*
+import java.nio.file.Files
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 object TreeDataMgr {
-    val d = "ddddddddddd"
+    val d = "dddddddddddddddddddd"
     val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
     private val dataFile = File("${plugin.dataFolder}/SettingData.json")
+    private val backUpFolder = File("${plugin.dataFolder}/BackUp")
 
     private const val NAME_KEY = "name"
     private const val CHANCE_KEY = "chance"
@@ -30,6 +33,7 @@ object TreeDataMgr {
 
     // TODO: BackUp
     fun saveAll() {
+        backUpData()
         createFilesIfNotExist()
 
         // rootNodeList Json화 시키기
@@ -80,19 +84,16 @@ object TreeDataMgr {
             writter.close()
         }
     }
+
     fun loadAll() {
         createFilesIfNotExist()
         try {
             val allLines = FileUtils.readLines(dataFile, "EUC-KR")
             val strBuilder = StringBuilder()
-            allLines.forEach {
-                Bukkit.broadcastMessage(it)
-                strBuilder.append(it)
-            }
+            allLines.forEach { strBuilder.append(it) }
             val simplifiedJsonStr = strBuilder.toString()
 
             val rootJsonArray = JSONParser().parse(simplifiedJsonStr) as JSONArray
-            // TODO: JSON key를 const로 지정해줄 필요가 있음
             // 사실상 save의 오른쪽 -> 왼쪽 이랑 비슷한데, 이건 객체 만들면서 알아서 parentNode의 childNodeList에 추가해줌
             for (rankJson in rootJsonArray.map { it as JSONObject }) {
                 val nodeRankObj = NodeRank(rankJson[NAME_KEY] as String, rankJson[CHANCE_KEY] as Double, arrayListOf())
@@ -108,14 +109,35 @@ object TreeDataMgr {
             }
         } catch (e: Exception) {  // try에서 if로 체크 생까고 어떠한 문제라도 생기면 걍 catch로 보내서 처리해
             e.printStackTrace()
-            // TODO: 데이터 결함 발생되면 바로 백업 ㄱㄱ
+            backUpData()
         }
     }
 
 
 
+    private fun backUpData() {
+        if (!backUpFolder.exists()) {
+            backUpFolder.mkdir()
+        }
+        deleteFilesOlderThanNdays(1, backUpFolder)  // 오래된 백업 파일 정리  // TODO: Test
 
-
+        // 백업 파일 생성
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd (HHmmss)")
+        val backUpFile = File("$backUpFolder/${dateFormat.format(calendar.time)}.json")
+        if (!backUpFile.exists()) {  // 혹시 모를 위험 방지
+            Files.copy(dataFile.toPath(), backUpFile.toPath())
+        }
+    }
+    private fun deleteFilesOlderThanNdays(daysBack: Int, dir: File) {
+        val listFiles = dir.listFiles()
+        val purgeTime = System.currentTimeMillis() - daysBack * 24 * 60 * 60 * 1000
+        for (listFile in listFiles) {
+            if (listFile.lastModified() < purgeTime) {
+                listFile.delete()
+            }
+        }
+    }
 
     private fun createFilesIfNotExist() {
         if (!plugin.dataFolder.exists()) {
