@@ -2,7 +2,7 @@ package kr.sul.itemfarming.setting.gui
 
 import kr.sul.itemfarming.Main
 import kr.sul.itemfarming.setting.gui.node.NodeCategory
-import kr.sul.itemfarming.setting.gui.node.NodeItem
+import kr.sul.itemfarming.setting.gui.node.NodeItemAbstract
 import kr.sul.itemfarming.setting.gui.node.NodeRank
 import kr.sul.servercore.util.ItemBuilder.clearLoreIB
 import kr.sul.servercore.util.ItemBuilder.loreIB
@@ -46,7 +46,7 @@ object TreeUtil {
             return when (node) {
                 is NodeRank -> node.name
                 is NodeCategory -> node.name
-                is NodeItem -> node.displayName
+                is NodeItemAbstract -> node.displayName
                 else -> throw Exception("${node::class.java}")
             }
         }

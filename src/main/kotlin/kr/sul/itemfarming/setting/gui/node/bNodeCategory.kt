@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 // Internal node
-class NodeCategory(override val parentNode: NodeRank, override var name: String, override var chance: Double, override val childNodeList: ArrayList<NodeItem>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItem> {
+class NodeCategory(override val parentNode: NodeRank, override var name: String, override var chance: Double, override val childNodeList: ArrayList<NodeItemAbstract>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItemAbstract> {
 
     // parentNode에 연결(link)
     init {
@@ -32,7 +32,7 @@ object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
     override val NODE_CLASS = NodeCategory::class.java
     override val NODE_TYPE_NAME = NodeCategory.NOTATION_NAME
     override val NODE_TYPE_COLOR = NodeCategory.NOTATION_COLOR
-    override val CHILD_NODE_TYPE_NAME = NodeItem.NOTATION_NAME
+    override val CHILD_NODE_TYPE_NAME = NodeItemAbstract.NOTATION_NAME
 
     override fun getViewingGuiCurrentNodeList(p: Player): ArrayList<NodeCategory> {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeRank::class.java).childNodeList

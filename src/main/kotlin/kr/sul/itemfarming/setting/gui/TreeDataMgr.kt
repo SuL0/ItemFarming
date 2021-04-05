@@ -2,9 +2,7 @@ package kr.sul.itemfarming.setting.gui
 
 import com.google.gson.GsonBuilder
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.setting.gui.node.NodeCategory
-import kr.sul.itemfarming.setting.gui.node.NodeItem
-import kr.sul.itemfarming.setting.gui.node.NodeRank
+import kr.sul.itemfarming.setting.gui.node.*
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
@@ -30,8 +28,10 @@ object TreeDataMgr {
     private const val NAME_KEY = "name"
     private const val CHANCE_KEY = "chance"
     private const val CHILD_NODE_LIST_KEY = "childNodeList"
+    private const val NODE_ITEM_CLASS = "itemNodeClass"
     private const val NAME_FOR_REFERENCE_KEY = "nameForReference"
     private const val ITEM_STACK_KEY = "itemStack"
+    private const val CS_PARENT_NODE_KEY = "itemStack"
 
     fun saveAll() {
         backUpData()
@@ -60,9 +60,23 @@ object TreeDataMgr {
                 // NodeItem
                 for (item in category.childNodeList) {
                     val itemJson = JSONObject()
-                    itemJson[NAME_FOR_REFERENCE_KEY] = item.displayName
-                    itemJson[ITEM_STACK_KEY] = toBase64(item.item)
-                    itemJson[CHANCE_KEY] = item.chance
+                    when (item) {
+                        is NodeItemNormal -> {
+                            itemJson[NODE_ITEM_CLASS] = NodeItemNormal::class.java.name
+                            itemJson[NAME_FOR_REFERENCE_KEY] = item.displayName
+                            itemJson[ITEM_STACK_KEY] = toBase64(item.item)  // 자신만의 것
+                            itemJson[CHANCE_KEY] = item.chance
+                        }
+                        is NodeItemCrackShot -> {
+                            itemJson[NODE_ITEM_CLASS] = NodeItemCrackShot::class.java.name
+                            itemJson[NAME_FOR_REFERENCE_KEY] = item.displayName
+                            itemJson[CS_PARENT_NODE_KEY] = item.csParentNode  // 자신만의 것
+                            itemJson[CHANCE_KEY] = item.chance
+                        }
+                        else -> {
+                            // TODO: 로그 남기기
+                        }
+                    }
 
                     // Json으로 객체 다 직렬화 한 후, 자신의 parentNode의 childNodeList에 자신을 추가
                     categoryChildJsonArray.add(itemJson)
@@ -103,8 +117,19 @@ object TreeDataMgr {
                     val nodeCategory = NodeCategory(nodeRankObj, categoryJson[NAME_KEY] as String, categoryJson[CHANCE_KEY] as Double, arrayListOf())
 
                     for (itemJson in (categoryJson[CHILD_NODE_LIST_KEY] as JSONArray).map { it as JSONObject }) {
-                        val item = fromBase64<ItemStack>(itemJson[ITEM_STACK_KEY] as String)
-                        NodeItem(nodeCategory, item, itemJson[CHANCE_KEY] as Double)
+                        when (itemJson[NODE_ITEM_CLASS] as String) {
+                            NodeItemNormal::class.java.name -> {
+                                val item = fromBase64<ItemStack>(itemJson[ITEM_STACK_KEY] as String)
+                                NodeItemNormal(nodeCategory, item, itemJson[CHANCE_KEY] as Double)
+                            }
+                            NodeItemCrackShot::class.java.name -> {
+                                val csParentNode = itemJson[CS_PARENT_NODE_KEY] as String
+                                NodeItemCrackShot(nodeCategory, csParentNode, itemJson[CHANCE_KEY] as Double)
+                            }
+                            else -> {
+                                // TODO: 로그 남기기
+                            }
+                        }
                     }
                 }
             }

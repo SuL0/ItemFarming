@@ -1,6 +1,8 @@
 package kr.sul.itemfarming.setting.gui.node
 
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.crackshotaddition.infomanager.weapon.WeaponInfoExtractor
+import kr.sul.crackshotaddition.util.CrackShotAdditionAPI
+import kr.sul.itemfarming.Main
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
@@ -22,12 +24,13 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 
+
 // Leaf Node
-class NodeItem(override val parentNode: NodeCategory,
-               val uuid: UUID,  // 고유한 NodeItem을 가리키는 용도. Item은 Unique하지 않아, 중복 가능성이 있기 때문 (파일에선 저장하지 않음. 그냥 load할때마다 UUID 바뀐다고 보면 됨)
-               val item: ItemStack,
-               chance: Double)
-    : ParentNodeContainer<NodeCategory> {
+abstract class NodeItemAbstract(override val parentNode: NodeCategory,
+                                val uuid: UUID,  // 고유한 NodeItem을 가리키는 용도. Item은 Unique하지 않아, 중복 가능성이 있기 때문 (파일에선 저장하지 않음. 그냥 load할때마다 UUID 바뀐다고 보면 됨)
+                                chance: Double): ParentNodeContainer<NodeCategory> {
+    abstract val item: ItemStack  // 이것만 abstract
+
     val displayName: String
         get() = item.itemMeta?.displayName ?: item.type.name
     var chance: Double = chance
@@ -36,48 +39,51 @@ class NodeItem(override val parentNode: NodeCategory,
             refreshSort()
         }
 
-    // parentNode에 연결(link)
+
+    // 주의: 해당 클래스를 상속하는 클래스는, TreeDataMgr의 Json부분에 직접 몇몇개 수정해줘야 함 (e.g. nodeItemType)
+/*  // parentNode에 연결(link)   해당 클래스를 상속하는 클래스는 이 코드를 직접 붙여넣어줘야 함
     init {
         parentNode.childNodeList.add(this)
         refreshSort()
     }
+*/
 
-    // default constructor(UUID 랜덤 생성)
-    constructor(parentNode: NodeCategory, item: ItemStack, chance: Double) : this(parentNode, UUID.randomUUID(), item, chance)
 
     // parentNode.childNodeList를 it.chance 기준 내림차순으로 정렬 (생성, chance 변경 시)
-    private fun refreshSort() {
+    protected fun refreshSort() {
         parentNode.childNodeList.sortByDescending { it.chance }
     }
 
-    // 외부에서는 반드시 이것으로 써야 함 (수정 용이)
     companion object {
         const val NOTATION_NAME = "Item"
         const val NOTATION_COLOR = "§9§l"
     }
 }
 
-
-
-
-
 // 쉬프트+왼클: Confirm 후 추가
 // InternalNodeMgr에서 따온 코드 중 InternalNode -> NodeCategory 로 무조건 변경해도 됨
 
 // 페이지 기능
 object NodeItemListMgr: Listener {
-    val NODE_CLASS = NodeItem::class.java
-    const val NODE_TYPE_NAME = NodeItem.NOTATION_NAME
-    const val NODE_TYPE_COLOR = NodeItem.NOTATION_COLOR
+    val NODE_CLASS = NodeItemAbstract::class.java
+    const val NODE_TYPE_NAME = NodeItemAbstract.NOTATION_NAME
+    const val NODE_TYPE_COLOR = NodeItemAbstract.NOTATION_COLOR
 
-    fun getViewingGuiCurrentNodeList(p: Player): ArrayList<NodeItem> {
+    fun getViewingGuiCurrentNodeList(p: Player): ArrayList<NodeItemAbstract> {
         return TreeUtil.MetaViewingGuiParentNodeUtil.getViewingGuiParentNode(p, NodeCategory::class.java).childNodeList
     }
 
     const val GUI_NAME_PREFIX = "§I§F§:§I§t§e§m"
     val howToCreateCurrentNodeObj = TriConsumer<Player, ItemStack, Double> { p, item, chance ->
         val viewingGuiParentNode = getViewingGuiParentNode(p)
-        NodeItem(viewingGuiParentNode, item, chance)
+        if (CrackShotAdditionAPI.isValidCrackShotWeapon(item)) {
+            p.sendMessage(" §7└ 등록된 아이템은 §fCrackShot §7으로 감지되었습니다.")
+            val csParentNode = WeaponInfoExtractor(p, item).mainFixedParentNode
+            NodeItemCrackShot(viewingGuiParentNode, csParentNode, chance)
+        } else {
+            p.sendMessage(" §7└ 등록된 아이템은 §fNormal Item §7으로 감지되었습니다.")
+            NodeItemNormal(viewingGuiParentNode, item, chance)
+        }
     }
 
     private val itemForIdentificationInGuiBottom = ItemStack(Material.BLUE_SHULKER_BOX).nameIB("§f")
@@ -93,14 +99,14 @@ object NodeItemListMgr: Listener {
     // NodeItem 전용 ViewingGuiPage MetaData
     private const val VIEWING_GUI_PAGE_KEY = "IF.ViewingGuiPage"
     private fun setViewingGuiPage(p: Player, page: Int) {
-        p.setMetadata(VIEWING_GUI_PAGE_KEY, FixedMetadataValue(plugin, page))
+        p.setMetadata(VIEWING_GUI_PAGE_KEY, FixedMetadataValue(Main.plugin, page))
     }
     private fun getViewingGuiPage(p: Player): Int {
         return p.getMetadata(VIEWING_GUI_PAGE_KEY)[0].asInt()
     }
     //
     // NodeItem GUI에 Page를 설정해서 1~6번째 줄 맞는 아이템으로 채우기
-    private fun setUpPageToNodeItemGui(p: Player, nodeItemInv: Inventory, page: Int, nodeItemList: List<NodeItem>) {
+    private fun setUpPageToNodeItemGui(p: Player, nodeItemInv: Inventory, page: Int, nodeItemList: List<NodeItemAbstract>) {
         setViewingGuiPage(p, page)
         nodeItemInv.setItem(58, ItemStack(Material.IRON_SWORD).nameIB("§e§l- $page Page -"))  // 현재 페이지 표시용 아이템
         for (guiIndex in 0..53) {
@@ -141,9 +147,9 @@ object NodeItemListMgr: Listener {
         nodeItemInv.setItem(54, helpItem)  // Node 추가하는 법 안내 표지판 아이템
         // TODO: Test
         nodeItemInv.setItem(62, goToCategoryListGuiBtn)  // NodeCategory로 돌아가기 버튼
-        goToCategoryListGuiBtn.nameIB("GUI에 과연 변경된 이름이 보일까")
-        Bukkit.broadcastMessage("inv: ${nodeItemInv.getItem(62).hashCode()}")
-        Bukkit.broadcastMessage("original: ${goToCategoryListGuiBtn.hashCode()}")
+//        goToCategoryListGuiBtn.nameIB("GUI에 과연 변경된 이름이 보일까")
+//        Bukkit.broadcastMessage("inv: ${nodeItemInv.getItem(62).hashCode()}")
+//        Bukkit.broadcastMessage("original: ${goToCategoryListGuiBtn.hashCode()}")
         for (i in 63..71) {
             nodeItemInv.setItem(i, itemForIdentificationInGuiBottom)  // GUI 식별용 색깔 아이템
         }
@@ -156,7 +162,7 @@ object NodeItemListMgr: Listener {
     // per Player의 GUI Interact용 Listener
     private class ListenUp: Listener {
         init {
-            Bukkit.getPluginManager().registerEvents(this, plugin)
+            Bukkit.getPluginManager().registerEvents(this, Main.plugin)
         }
 
         @EventHandler(priority = EventPriority.HIGH)
@@ -181,7 +187,7 @@ object NodeItemListMgr: Listener {
                             p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
                         }
                     }, {
-                        Bukkit.getScheduler().runTask(plugin) {
+                        Bukkit.getScheduler().runTask(Main.plugin) {
                             openCurrentNodeListGui(p, getViewingGuiParentNode(p), getViewingGuiPage(p))
                         }
                     }, itemToAdd.clone())
@@ -231,7 +237,7 @@ object NodeItemListMgr: Listener {
                                 p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
                             }
                         }, {
-                            Bukkit.getScheduler().runTask(plugin) {
+                            Bukkit.getScheduler().runTask(Main.plugin) {
                                 openCurrentNodeListGui(p, getViewingGuiParentNode(p), getViewingGuiPage(p))
                             }
                         })
@@ -248,7 +254,7 @@ object NodeItemListMgr: Listener {
                                 TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                                 // 인벤은 아래의 onClose()가 열어줌
                             }, {
-                                Bukkit.getScheduler().runTask(plugin) {
+                                Bukkit.getScheduler().runTask(Main.plugin) {
                                     openCurrentNodeListGui(p, getViewingGuiParentNode(p), getViewingGuiPage(p))
                                 }
                             })
@@ -263,7 +269,7 @@ object NodeItemListMgr: Listener {
 
     // Util
     private object Util {
-        fun makeItemForGuiDisplay(currentNodeObj: NodeItem): ItemStack {
+        fun makeItemForGuiDisplay(currentNodeObj: NodeItemAbstract): ItemStack {
             val itemForDisplay = currentNodeObj.item.clone()
             NodeItemUuidAPI.carveSpecificUniqueId(itemForDisplay, currentNodeObj.uuid)
 
@@ -273,13 +279,13 @@ object NodeItemListMgr: Listener {
                 meta.lore = listOf()
                 meta
             }
-            itemForDisplay.nameIB("${NodeItem.NOTATION_COLOR}[${NodeItem.NOTATION_NAME}] §f${currentNodeObj.displayName}")
+            itemForDisplay.nameIB("${NodeItemAbstract.NOTATION_COLOR}[${NodeItemAbstract.NOTATION_NAME}] §f${currentNodeObj.displayName}")
                 .loreIB(" §6└ Chance: ${currentNodeObj.chance}%")
                 .loreIB(" §7└ UUID: ${currentNodeObj.uuid}")
                 .loreIB("")
                 .loreIB("      §9§lRight Click §7: 해당 Item의 §6확률§7을 변경합니다.")
                 .loreIB("§9§lShift§7+§9§lLeft Click §7: 해당 Item을 §4삭제§7합니다.")
-                .loreIB("${NodeItem.NOTATION_COLOR}§m                                                      ", 2)
+                .loreIB("${NodeItemAbstract.NOTATION_COLOR}§m                                                      ", 2)
                 .loreIB("")
             // 원래 아이템 Lore을 밑에 부착
             if (tempStoredLore != null) {
@@ -290,11 +296,11 @@ object NodeItemListMgr: Listener {
         }
 
         // 위에서 생성한 아이템을 GUI에서 클릭했을 때, 그걸 다시 NodeRank, NodeCategory, NodeItem으로 바꿔주는 역할
-        fun getObjFromGuiItem(item: ItemStack, whereToFind: List<NodeItem>): NodeItem {
+        fun getObjFromGuiItem(item: ItemStack, whereToFind: List<NodeItemAbstract>): NodeItemAbstract {
             val clickedNodeUUID = NodeItemUuidAPI.getUniqueID(item)
             return searchObjInGivenListWithName(clickedNodeUUID, whereToFind)
         }
-        fun searchObjInGivenListWithName(nodeUUID: UUID, whereToFind: List<NodeItem>): NodeItem {
+        fun searchObjInGivenListWithName(nodeUUID: UUID, whereToFind: List<NodeItemAbstract>): NodeItemAbstract {
             whereToFind.forEach {
                 if (it.uuid == nodeUUID) {
                     return it
@@ -311,7 +317,7 @@ object NodeItemListMgr: Listener {
     }
 
 
-    // NodeItem만을 위한 UuidAPI (Item List GUI에서 사용)
+    // NodeItem만을 위한 UuidAPI (Item List GUI에서 식별용으로 사용)
     private object NodeItemUuidAPI {
         private const val UUID_KEY = "NodeItem-UUID"
 
