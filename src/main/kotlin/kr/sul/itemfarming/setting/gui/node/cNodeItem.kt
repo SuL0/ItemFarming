@@ -1,6 +1,7 @@
 package kr.sul.itemfarming.setting.gui.node
 
 import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
 import kr.sul.itemfarming.setting.gui.guimoderator.ConfirmGuiModerator
@@ -23,7 +24,7 @@ import java.util.*
 
 // Leaf Node
 class NodeItem(override val parentNode: NodeCategory,
-               val uuid: UUID,  // 파일에서 serializedItem을 가리키는 용도. Item은 Unique하지 않아, 중복 가능성이 있기 때문
+               val uuid: UUID,  // 고유한 NodeItem을 가리키는 용도. Item은 Unique하지 않아, 중복 가능성이 있기 때문 (파일에선 저장하지 않음. 그냥 load할때마다 UUID 바뀐다고 보면 됨)
                val item: ItemStack,
                chance: Double)
     : ParentNodeContainer<NodeCategory> {
@@ -138,7 +139,11 @@ object NodeItemListMgr: Listener {
         nodeItemInv.setItem(57, goToPreviousPageBtn)  // 이전 페이지
         nodeItemInv.setItem(59, goToNextPageBtn)  // 다음 페이지
         nodeItemInv.setItem(54, helpItem)  // Node 추가하는 법 안내 표지판 아이템
+        // TODO: Test
         nodeItemInv.setItem(62, goToCategoryListGuiBtn)  // NodeCategory로 돌아가기 버튼
+        goToCategoryListGuiBtn.nameIB("GUI에 과연 변경된 이름이 보일까")
+        Bukkit.broadcastMessage("inv: ${nodeItemInv.getItem(62).hashCode()}")
+        Bukkit.broadcastMessage("original: ${goToCategoryListGuiBtn.hashCode()}")
         for (i in 63..71) {
             nodeItemInv.setItem(i, itemForIdentificationInGuiBottom)  // GUI 식별용 색깔 아이템
         }
@@ -170,6 +175,7 @@ object NodeItemListMgr: Listener {
                             val inputChance = s_inputChance.toDouble()
                             p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §f${itemToAdd?.itemMeta?.displayName ?: itemToAdd.type.name} : $inputChance% §7를 새로 생성했습니다.")
                             howToCreateCurrentNodeObj.accept(p, itemToAdd, inputChance)
+                            TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                             openCurrentNodeListGui(p, getViewingGuiParentNode(p), getViewingGuiPage(p))
                         } catch (ignored: Exception) {
                             p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
@@ -219,6 +225,7 @@ object NodeItemListMgr: Listener {
                                 val input = s_input.toDouble()
                                 p.sendMessage("§6§lIF: ${NODE_TYPE_COLOR}[${NODE_TYPE_NAME}] §7${clickedNode.displayName} §7의 확률을 §f$s_input% §7로 변경했습니다.")
                                 clickedNode.chance = input
+                                TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                                 // 인벤은 아래의 onClose()가 열어줌
                             } catch (ignored: Exception) {
                                 p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
@@ -238,6 +245,7 @@ object NodeItemListMgr: Listener {
                             listOf(), {
                                 getViewingGuiParentNode(p).childNodeList.remove(clickedNode)
                                 p.sendMessage("§6§lIF: ${NODE_TYPE_COLOR}[${NODE_TYPE_NAME}] §f${clickedNode.displayName} §7을(를) 삭제했습니다.")
+                                TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                                 // 인벤은 아래의 onClose()가 열어줌
                             }, {
                                 Bukkit.getScheduler().runTask(plugin) {
@@ -267,7 +275,7 @@ object NodeItemListMgr: Listener {
             }
             itemForDisplay.nameIB("${NodeItem.NOTATION_COLOR}[${NodeItem.NOTATION_NAME}] §f${currentNodeObj.displayName}")
                 .loreIB(" §6└ Chance: ${currentNodeObj.chance}%")
-                .loreIB(" §7└ UUID: ${currentNodeObj.uuid}%")
+                .loreIB(" §7└ UUID: ${currentNodeObj.uuid}")
                 .loreIB("")
                 .loreIB("      §9§lRight Click §7: 해당 Item의 §6확률§7을 변경합니다.")
                 .loreIB("§9§lShift§7+§9§lLeft Click §7: 해당 Item을 §4삭제§7합니다.")

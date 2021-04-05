@@ -6,7 +6,9 @@ import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeItem
 import kr.sul.itemfarming.setting.gui.node.NodeRank
 import org.apache.commons.io.FileUtils
+import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
+import org.bukkit.scheduler.BukkitTask
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
 import org.json.simple.JSONArray
@@ -22,8 +24,8 @@ import java.util.*
 object TreeDataMgr {
     val d = "dddddddddddddddddddd"
     val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
-    private val dataFile = File("${plugin.dataFolder}/SettingData.json")
-    private val backUpFolder = File("${plugin.dataFolder}/BackUp")
+    private val dataFile = File("${plugin.dataFolder}/settings_data.json")
+    private val backUpFolder = File("${plugin.dataFolder}/backup")
 
     private const val NAME_KEY = "name"
     private const val CHANCE_KEY = "chance"
@@ -31,7 +33,6 @@ object TreeDataMgr {
     private const val NAME_FOR_REFERENCE_KEY = "nameForReference"
     private const val ITEM_STACK_KEY = "itemStack"
 
-    // TODO: BackUp
     fun saveAll() {
         backUpData()
         createFilesIfNotExist()
@@ -129,6 +130,8 @@ object TreeDataMgr {
             Files.copy(dataFile.toPath(), backUpFile.toPath())
         }
     }
+
+    // TODO: 작동?
     private fun deleteFilesOlderThanNdays(daysBack: Int, dir: File) {
         val listFiles = dir.listFiles()
         val purgeTime = System.currentTimeMillis() - daysBack * 24 * 60 * 60 * 1000
@@ -138,6 +141,10 @@ object TreeDataMgr {
             }
         }
     }
+
+
+
+
 
     private fun createFilesIfNotExist() {
         if (!plugin.dataFolder.exists()) {
@@ -162,5 +169,20 @@ object TreeDataMgr {
         val returnVal = dataInput.readObject() as T
         dataInput.close()
         return returnVal
+    }
+
+
+    object DataSaveTaskRegister {
+        private const val INTERVAL = 180.toLong() // sec
+        private var bukkitTask: BukkitTask? = null
+
+        // 파밍 데이터에 수정이 일어났을 시, INTERVAL 후 저장 task 등록 (1개까지만 활성 가능)
+        fun tryToRegisterDataSaveTask() {
+            if (bukkitTask != null) return
+            bukkitTask = Bukkit.getScheduler().runTaskLater(plugin, {
+                saveAll()
+                bukkitTask = null
+            }, INTERVAL*20)
+        }
     }
 }

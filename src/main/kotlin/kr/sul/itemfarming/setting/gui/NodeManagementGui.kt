@@ -59,8 +59,9 @@ class NodeManagementGui(private val p: Player,
             AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 확률 입력.", { s_input ->
                 try {
                     val input = s_input.toDouble()
-                    p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7${internalNodeObjToEdit.name} §7의 확률을 §f$s_input% §7로 변경했습니다.")
                     internalNodeObjToEdit.chance = input
+                    p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7${internalNodeObjToEdit.name} §7의 확률을 §f$s_input% §7로 변경했습니다.")
+                    TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                     // 인벤은 아래의 onClose()가 열어줌
                 } catch (ignored: Exception) {
                     p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
@@ -80,8 +81,9 @@ class NodeManagementGui(private val p: Player,
             .loreIB(" §7└ 이름 §f${internalNodeObjToEdit.name} §7을(를) 변경합니다.", 2)) {
 
             AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 이름 입력.", { input ->
-                p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7의 이름을 §f'${internalNodeObjToEdit.name}' -> '$input' §7로 변경했습니다.")
                 internalNodeObjToEdit.name = input
+                p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7의 이름을 §f'${internalNodeObjToEdit.name}' -> '$input' §7로 변경했습니다.")
+                TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                 // 인벤은 아래의 onClose()가 열어줌
             }, {
                 Bukkit.getScheduler().runTask(Main.plugin) {
@@ -102,6 +104,7 @@ class NodeManagementGui(private val p: Player,
                 listOf(" §7└ 해당 ${nodeTag.getCombined()} §7는 §e${childNodeSize}개§7의 하위 노드를 가지고 있습니다."), {
                     deleteMethod.run()
                     p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §f${internalNodeObjToEdit.name} §7을(를) 삭제했습니다.")
+                    TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                     // 인벤은 아래의 onClose()가 열어줌
                 }, {
                     Bukkit.getScheduler().runTask(Main.plugin) {

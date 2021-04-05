@@ -113,6 +113,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
                     val inputChance = s_inputChance.toDouble()
                     p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §f$inputName : $inputChance% §7를 새로 생성했습니다.")
                     howToCreateCurrentNodeObj.accept(p, inputName, inputChance)
+                    TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
                     this.openCurrentNodeListGui(p, getViewingGuiParentNode(p))
                 } catch (ignored: Exception) {
                     p.sendMessage("§6§lIF: §cDouble §7타입을 입력해야 합니다.")
