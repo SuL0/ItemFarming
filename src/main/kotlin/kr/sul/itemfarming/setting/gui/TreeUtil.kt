@@ -41,12 +41,21 @@ object TreeUtil {
             }
         }
 
-        // 인자가 NodeRank | NodeCategory | NodeItem 중 하나라면 그것의 name을 반환해줌
+        // 파라미터가 NodeRank | NodeCategory | NodeItem 중 하나라면 그것의 name을 반환해줌
         fun getNodeName(node: Any): String {
             return when (node) {
                 is NodeRank -> node.name
                 is NodeCategory -> node.name
                 is NodeItemAbstract -> node.displayName
+                else -> throw Exception("${node::class.java}")
+            }
+        }
+        // 파라미터가 NodeRank | NodeCategory | NodeItem 중 하나라면 그것의 chance를 반환해줌
+        fun getNodeChance(node: Any): Double {
+            return when (node) {
+                is NodeRank -> node.chance
+                is NodeCategory -> node.chance
+                is NodeItemAbstract -> node.chance
                 else -> throw Exception("${node::class.java}")
             }
         }
