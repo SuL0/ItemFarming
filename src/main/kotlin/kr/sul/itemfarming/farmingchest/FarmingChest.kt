@@ -43,7 +43,7 @@ object FarmingChest: Listener {
                 regenChest(p, chest)
             } else {
                 val leftTime = REGEN_DELAY - (UptimeBasedOnTick.uptimeBasedOnTick - latestRegenTimeRecorder[chest]!!)/20
-                p.sendMessage("§6§lIF: §7리젠까지 §f${leftTime}초 §7남았습니다.")
+                p.sendMessage("§6§lIF: §7이미 누군가 열어본 상자입니다. §f[ ${leftTime}초 후 리젠 ]")
             }
         }
     }
@@ -54,7 +54,8 @@ object FarmingChest: Listener {
         if (TreeDataMgr.rootNodeList.size == 0) return
         // 상자 템 리젠
         val rank = pickAtRandom(TreeDataMgr.rootNodeList)!!
-        chest.customName = "${rank.name} 등급 상자"
+        p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 상자를 발견했습니다.")
+        chest.customName = "${rank.name} §0등급 상자"
         for (c in 0 until categoryDropNumRange.random()) {
             val category = pickAtRandom(rank.childNodeList) ?: continue
             for (i in 0 until itemDropNumRange.random()) {
@@ -70,11 +71,11 @@ object FarmingChest: Listener {
     private fun <T: Any> pickAtRandom(nodeList: List<T>): T? {
         val random = Random.nextDouble(100.0)+1
         var stackChance = 0.0
-        for (internalNode in nodeList) {
-            if (random <= TreeUtil.ForCommon.getNodeChance(internalNode)) {
-                return internalNode
+        for (node in nodeList) {
+            stackChance += TreeUtil.ForCommon.getNodeChance(node)
+            if (random <= stackChance) {
+                return node
             }
-            stackChance += TreeUtil.ForCommon.getNodeChance(internalNode)
         }
         return null
     }
