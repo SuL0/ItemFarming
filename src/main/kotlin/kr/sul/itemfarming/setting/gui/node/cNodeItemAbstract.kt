@@ -26,6 +26,7 @@ import java.util.*
 
 
 // Leaf Node
+// 이것을 구현하는 것들의 차이점은, 오로지 item을 어떻게 반환 해 내는가의 차이
 abstract class NodeItemAbstract(override val parentNode: NodeCategory,
                                 val uuid: UUID,  // 고유한 NodeItem을 가리키는 용도. Item은 Unique하지 않아, 중복 가능성이 있기 때문 (파일에선 저장하지 않음. 그냥 load할때마다 UUID 바뀐다고 보면 됨)
                                 chance: Double): ParentNodeContainer<NodeCategory> {

@@ -1,5 +1,6 @@
 package kr.sul.itemfarming
 
+import kr.sul.itemfarming.farmingchest.FarmingChest
 import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import org.bukkit.Bukkit
@@ -18,6 +19,7 @@ class Main : JavaPlugin(), Listener {
         plugin = this as Plugin
         registerClasses()
         TreeDataMgr.loadAll()
+        ConfigLoader.loadConfig()
     }
 
     override fun onDisable() {
@@ -27,6 +29,7 @@ class Main : JavaPlugin(), Listener {
     private fun registerClasses() {
         getCommand("ItemFarming").executor = Command
         Bukkit.getPluginManager().registerEvents(this, this)
+        Bukkit.getPluginManager().registerEvents(FarmingChest, this)
     }
 
 
