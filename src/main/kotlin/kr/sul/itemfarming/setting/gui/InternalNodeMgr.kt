@@ -213,9 +213,8 @@ abstract class InternalNodeMgr<T: InternalNode> {
         // 위에서 생성한 아이템을 GUI에서 클릭했을 때, 그걸 다시 NodeRank, NodeCategory, NodeItem으로 바꿔주는 역할
         fun <T: InternalNode> getObjFromGuiItem(clazz: Class<T>, item: ItemStack, whereToFind: List<T>): T {
             val whereToCut = item.itemMeta.displayName.indexOf(" ")+1
-            val pureName = item.itemMeta.displayName.substring(whereToCut)
-            val clickedNodeName = ChatColor.stripColor(pureName)
-            return searchObjInGivenListWithName(clazz, clickedNodeName, whereToFind)
+            val pureName = item.itemMeta.displayName.substring(whereToCut).replaceFirst("§f", "").replace("§", "&")
+            return searchObjInGivenListWithName(clazz, pureName, whereToFind)
         }
         private fun <T: InternalNode> searchObjInGivenListWithName(clazz: Class<T>, name: String, whereToFind: List<T>): T {
             whereToFind.forEach {
