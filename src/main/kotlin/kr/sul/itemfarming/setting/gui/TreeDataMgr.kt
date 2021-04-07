@@ -88,15 +88,13 @@ object TreeDataMgr {
         val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
         val finalJson = gsonBuilder.toJson(rootJsonArray)
 
-        val writter = FileWriter(dataFile)
-        val bWritter = BufferedWriter(writter)
+        val bWriter = BufferedWriter(FileWriter(dataFile))
         try {
-            bWritter.write(finalJson)
-            bWritter.flush()
+            bWriter.write(finalJson)
+            bWriter.flush()
         } catch(ignored: IOException) {
         } finally {
-            bWritter.close()
-            writter.close()
+            bWriter.close()
         }
     }
 
