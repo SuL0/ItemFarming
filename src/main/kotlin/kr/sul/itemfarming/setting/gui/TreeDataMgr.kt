@@ -19,8 +19,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+// TODO: 데이터 Excel로 변환 추가.  (그것으로 확률 수정까지 가능하게)
 object TreeDataMgr {
-    val d = "dddddddddddddddddddd"
     val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
     private val dataFile = File("${plugin.dataFolder}/settings_data.json")
     private val backUpFolder = File("${plugin.dataFolder}/backup")
@@ -88,7 +88,8 @@ object TreeDataMgr {
         val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
         val finalJson = gsonBuilder.toJson(rootJsonArray)
 
-        val bWriter = BufferedWriter(FileWriter(dataFile))
+//        val bWriter = BufferedWriter(FileWriter(dataFile))
+        val bWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(dataFile), "EUC-KR"))
         try {
             bWriter.write(finalJson)
             bWriter.flush()
@@ -104,7 +105,7 @@ object TreeDataMgr {
             val allLines = FileUtils.readLines(dataFile, "EUC-KR")
             val strBuilder = StringBuilder()
             allLines.forEach { strBuilder.append(it) }
-            val simplifiedJsonStr = strBuilder.toString()
+            val simplifiedJsonStr = strBuilder.toString()  // 1줄로 바꾼 형태가 simplified
 
             val rootJsonArray = JSONParser().parse(simplifiedJsonStr) as JSONArray
             // 사실상 save의 오른쪽 -> 왼쪽 이랑 비슷한데, 이건 객체 만들면서 알아서 parentNode의 childNodeList에 추가해줌
@@ -143,7 +144,7 @@ object TreeDataMgr {
         if (!backUpFolder.exists()) {
             backUpFolder.mkdir()
         }
-        deleteFilesOlderThanNdays(1, backUpFolder)  // 오래된 백업 파일 정리  // TODO: Test
+        deleteFilesOlderThanNdays(1, backUpFolder)  // 오래된 백업 파일 정리
 
         // 백업 파일 생성
         val calendar = Calendar.getInstance()
@@ -158,9 +159,11 @@ object TreeDataMgr {
     private fun deleteFilesOlderThanNdays(daysBack: Int, dir: File) {
         val listFiles = dir.listFiles()
         val purgeTime = System.currentTimeMillis() - daysBack * 24 * 60 * 60 * 1000
-        for (listFile in listFiles) {
-            if (listFile.lastModified() < purgeTime) {
-                listFile.delete()
+        if (listFiles != null && listFiles.isNotEmpty()) {
+            for (listFile in listFiles) {
+                if (listFile.lastModified() < purgeTime && listFiles.size > 10) {
+                    listFile.delete()
+                }
             }
         }
     }
