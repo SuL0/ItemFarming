@@ -1,6 +1,6 @@
 package kr.sul.itemfarming
 
-import kr.sul.itemfarming.farmingchest.FarmingChest
+import kr.sul.itemfarming.farmingshulker.FarmingShulker
 import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import org.bukkit.Bukkit
@@ -29,7 +29,7 @@ class Main : JavaPlugin(), Listener {
     private fun registerClasses() {
         getCommand("ItemFarming").executor = Command
         Bukkit.getPluginManager().registerEvents(this, this)
-        Bukkit.getPluginManager().registerEvents(FarmingChest, this)
+        Bukkit.getPluginManager().registerEvents(FarmingShulker, this)
     }
 
 
