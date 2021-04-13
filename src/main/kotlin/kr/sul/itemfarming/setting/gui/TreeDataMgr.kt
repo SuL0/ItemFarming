@@ -3,6 +3,7 @@ package kr.sul.itemfarming.setting.gui
 import com.google.gson.GsonBuilder
 import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.node.*
+import kr.sul.servercore.util.CustomFileUtil
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
@@ -144,7 +145,7 @@ object TreeDataMgr {
         if (!backUpFolder.exists()) {
             backUpFolder.mkdir()
         }
-        deleteFilesOlderThanNdays(1, backUpFolder)  // 오래된 백업 파일 정리
+        CustomFileUtil.deleteFilesOlderThanNdays(1, backUpFolder, 10)  // 오래된 백업 파일 정리   // TODO: 작동?
 
         // 백업 파일 생성
         val calendar = Calendar.getInstance()
@@ -155,18 +156,6 @@ object TreeDataMgr {
         }
     }
 
-    // TODO: 작동?
-    private fun deleteFilesOlderThanNdays(daysBack: Int, dir: File) {
-        val listFiles = dir.listFiles()
-        val purgeTime = System.currentTimeMillis() - daysBack * 24 * 60 * 60 * 1000
-        if (listFiles != null && listFiles.isNotEmpty()) {
-            for (listFile in listFiles) {
-                if (listFile.lastModified() < purgeTime && listFiles.size > 10) {
-                    listFile.delete()
-                }
-            }
-        }
-    }
 
 
 
