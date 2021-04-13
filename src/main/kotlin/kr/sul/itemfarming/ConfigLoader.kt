@@ -1,7 +1,7 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulker.FarmingShulker
+import kr.sul.itemfarming.farmingshulkerbox.FarmingShulkerBox
 import org.bukkit.Bukkit
 
 object ConfigLoader {
@@ -13,20 +13,20 @@ object ConfigLoader {
     fun loadConfig() {
         val config = plugin.config
         Bukkit.getScheduler().runTask(plugin) {
-            val farmingShulkerSection = config.getConfigurationSection("파밍셜커")
-            farmingShulkerSection.getStringList("적용할월드_목록").forEach {
+            val itemFarmingSection = config.getConfigurationSection("아이템파밍")
+            itemFarmingSection.getStringList("적용할월드_목록").forEach {
                 if (Bukkit.getWorld(it) != null) {
-                    FarmingShulker.activeWorlds.add(Bukkit.getWorld(it))
+                    FarmingShulkerBox.activeWorlds.add(Bukkit.getWorld(it))
                 }
             }
 
-            val dropNumRangeSection = farmingShulkerSection.getConfigurationSection("아이템_개수_범위")
+            val dropNumRangeSection = itemFarmingSection.getConfigurationSection("아이템_개수_범위")
             dropNumRangeSection.getString("카테고리").run {
                 val split = this.split("~")
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    FarmingShulker.categoryDropNumRange = FarmingShulker.DropNumRange(min, max)
+                    FarmingShulkerBox.categoryDropNumRange = FarmingShulkerBox.DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }
@@ -35,7 +35,7 @@ object ConfigLoader {
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    FarmingShulker.itemDropNumRange = FarmingShulker.DropNumRange(min, max)
+                    FarmingShulkerBox.itemDropNumRange = FarmingShulkerBox.DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }

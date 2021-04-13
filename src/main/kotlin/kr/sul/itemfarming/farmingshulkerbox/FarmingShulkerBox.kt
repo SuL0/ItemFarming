@@ -1,22 +1,21 @@
-package kr.sul.itemfarming.farmingshulker
+package kr.sul.itemfarming.farmingshulkerbox
 
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.servercore.util.UptimeBasedOnTick
-import org.bukkit.Material
 import org.bukkit.World
-import org.bukkit.block.Chest
 import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import kotlin.random.Random
 
 
-// TODO: 셜커로 변경
-object FarmingShulker: Listener {
+// TODO: 셜커 몹과의 전투 -> 셜커 상자 구현
+object FarmingShulkerBox: Listener {
     // value loaded from config
     val activeWorlds = arrayListOf<World>()
 
@@ -30,32 +29,33 @@ object FarmingShulker: Listener {
     //
     private const val REGEN_DELAY = 30 // 초
 
-    private val latestRegenTimeRecorder = HashMap<ShulkerBox, Long>()  // 셜커 리젠시간 기록용
+    private val latestRegenTimeRecorder = HashMap<ShulkerBox, Long>()  // 셜커 상자 리젠시간 기록용
 
 
-    @EventHandler
-    fun onOpenChest(e: PlayerInteractEvent) {
+    @EventHandler(priority = EventPriority.HIGH)
+    fun onOpenShulkerBox(e: PlayerInteractEvent) {
+        if (e.isCancelled) return
         val p = e.player
         if (activeWorlds.contains(p.world)
                     && e.action == Action.RIGHT_CLICK_BLOCK && e.clickedBlock.state is ShulkerBox) {
             val shulkerBox = e.clickedBlock.state as ShulkerBox
             if (!latestRegenTimeRecorder.containsKey(shulkerBox) || (UptimeBasedOnTick.uptimeBasedOnTick - latestRegenTimeRecorder[shulkerBox]!!)/20 > REGEN_DELAY) {
-                regenShulker(p, shulkerBox)
+                regenShulkerBox(p, shulkerBox)
             } else {
                 val leftTime = REGEN_DELAY - (UptimeBasedOnTick.uptimeBasedOnTick - latestRegenTimeRecorder[shulkerBox]!!)/20
-                p.sendMessage("§6§lIF: §7이미 누군가 열어본 셜커입니다. §f[ ${leftTime}초 후 리젠 ]")
+                p.sendMessage("§6§lIF: §7이미 누군가 열어본 셜커 상자입니다. §f[ ${leftTime}초 후 리젠 ]")
             }
         }
     }
-    private fun regenShulker(p: Player, shulker: ShulkerBox) {
-        latestRegenTimeRecorder[shulker] = UptimeBasedOnTick.uptimeBasedOnTick  // 셜커 리젠시간 기록
-        shulker.inventory.clear()  // 셜커 템 초기화
+    private fun regenShulkerBox(p: Player, shulker: ShulkerBox) {
+        latestRegenTimeRecorder[shulker] = UptimeBasedOnTick.uptimeBasedOnTick  // 셜커 상자 리젠시간 기록
+        shulker.inventory.clear()  // 셜커 상자 템 초기화
 
         if (TreeDataMgr.rootNodeList.size == 0) return
-        // 셜커 템 리젠
+        // 셜커 상자 템 리젠
         val rank = pickAtRandom(TreeDataMgr.rootNodeList)!!
-        p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 셜커를 발견했습니다.")
-        shulker.customName = "${rank.name} §0등급 셜커"
+        p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 셜커 상자를 발견했습니다.")
+        shulker.customName = "${rank.name} §0등급 셜커 소지품"
         for (c in 0 until categoryDropNumRange.random()) {
             val category = pickAtRandom(rank.childNodeList) ?: continue
             for (i in 0 until itemDropNumRange.random()) {
