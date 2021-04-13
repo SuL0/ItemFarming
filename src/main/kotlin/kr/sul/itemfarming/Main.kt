@@ -1,6 +1,7 @@
 package kr.sul.itemfarming
 
-import kr.sul.itemfarming.farmingshulker.FarmingShulker
+import kr.sul.itemfarming.farmingshulkerbox.FarmingShulkerBox
+import kr.sul.itemfarming.farmingshulkerbox.PlacingShulkerBoxSaver
 import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import org.bukkit.Bukkit
@@ -20,16 +21,19 @@ class Main : JavaPlugin(), Listener {
         registerClasses()
         TreeDataMgr.loadAll()
         ConfigLoader.loadConfig()
+        PlacingShulkerBoxSaver.DataMgr.loadAll()
     }
 
     override fun onDisable() {
         TreeDataMgr.saveAll()
+        PlacingShulkerBoxSaver.DataMgr.saveAll()
     }
 
     private fun registerClasses() {
         getCommand("ItemFarming").executor = Command
         Bukkit.getPluginManager().registerEvents(this, this)
-        Bukkit.getPluginManager().registerEvents(FarmingShulker, this)
+        Bukkit.getPluginManager().registerEvents(FarmingShulkerBox, this)
+        Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
     }
 
 
