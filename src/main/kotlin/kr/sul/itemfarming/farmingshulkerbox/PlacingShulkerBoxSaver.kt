@@ -19,7 +19,7 @@ import java.io.FileWriter
 import java.io.IOException
 
 object PlacingShulkerBoxSaver {
-    private val shulkerBoxLocationList = arrayListOf<SimpleLocation>()
+    private val shulkerBoxLocationsPerWorld = hashMapOf<String, ArrayList<SimpleLocation>>()  // WorldName, List<SimpleLocation>
 
     private data class SimpleLocation(val x: Double, val y: Double, val z: Double) {  // 셜커 상자 위치 저장 전용
         companion object {
@@ -38,9 +38,15 @@ object PlacingShulkerBoxSaver {
             if (e.player.isOp && e.block.state is ShulkerBox
                         && FarmingShulkerBox.activeWorlds.contains(e.block.world)) {
 
-                e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §a등록§f했습니다.")
+                val worldName = e.block.world.name
                 val placeSimpleLoc = SimpleLocation.convertFromLoc(e.block.location)
-                shulkerBoxLocationList.add(placeSimpleLoc)
+
+                e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §a등록§f했습니다.")
+                // shulkerBoxLocationList에 placeSimpleLoc 추가
+                if (!shulkerBoxLocationsPerWorld.containsKey(worldName)) {
+                    shulkerBoxLocationsPerWorld[worldName] = arrayListOf()
+                }
+                shulkerBoxLocationsPerWorld[worldName]!!.add(placeSimpleLoc)
             }
         }
 
@@ -50,10 +56,16 @@ object PlacingShulkerBoxSaver {
             if (e.player.isOp && e.block.state is ShulkerBox
                         && FarmingShulkerBox.activeWorlds.contains(e.block.world)) {
 
+                val worldName = e.block.world.name
                 val brokeSimpleLoc = SimpleLocation.convertFromLoc(e.block.location)
-                if (shulkerBoxLocationList.contains(brokeSimpleLoc)) {
+
+                if (shulkerBoxLocationsPerWorld[worldName]?.contains(brokeSimpleLoc) == true) {
                     e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §c삭제§f했습니다.")
-                    shulkerBoxLocationList.remove(brokeSimpleLoc)
+                    shulkerBoxLocationsPerWorld[worldName]!!.remove(brokeSimpleLoc)
+                    // arrayList 비었을 시, 월드 Key 삭제
+                    if (shulkerBoxLocationsPerWorld[worldName]!!.size == 0) {
+                        shulkerBoxLocationsPerWorld.remove(worldName)
+                    }
                 }
             }
         }
@@ -66,9 +78,10 @@ object PlacingShulkerBoxSaver {
             if (FarmingShulkerBox.activeWorlds.contains(e.player.world)
                         && e.action == Action.RIGHT_CLICK_BLOCK && e.clickedBlock.state is ShulkerBox) {
 
+                val worldName = e.clickedBlock.world.name
                 val shulkerSimpleLoc = SimpleLocation.convertFromLoc(e.clickedBlock.location)
-                if (!shulkerBoxLocationList.contains(shulkerSimpleLoc)) {
-                    shulkerBoxLocationList.add(shulkerSimpleLoc)
+                if (shulkerBoxLocationsPerWorld[worldName]?.contains(shulkerSimpleLoc) != true) {
+                    shulkerBoxLocationsPerWorld[worldName]!!.add(shulkerSimpleLoc)
                     // TODO: LogToFile 이용해서 로그 찍기
                 }
             }
@@ -85,7 +98,7 @@ object PlacingShulkerBoxSaver {
         fun saveAll() {
             createFilesIfNotExists()
             val gson = GsonBuilder().setPrettyPrinting().create()
-            val finalJson = gson.toJson(shulkerBoxLocationList)
+            val finalJson = gson.toJson(shulkerBoxLocationsPerWorld)
 
             val bWriter = BufferedWriter(FileWriter(dataFile))
             try {
@@ -106,9 +119,9 @@ object PlacingShulkerBoxSaver {
                 val simplifiedJsonStr = strBuilder.toString()  // 1줄로 바꾼 형태가 simplified
 
                 val gson = GsonBuilder().setPrettyPrinting().create()
-                val myType = object : TypeToken<List<SimpleLocation>>() {}.type  // 대충 뭔가를 우회한다고 이런 방식 쓴다고 함. 이건 일반적인 방법으론 객체 생성이 막혀있어서 익명객체 쓴 듯?  자세한건 https://namocom.tistory.com/671
-                val result = gson.fromJson<List<SimpleLocation>>(simplifiedJsonStr, myType)
-                shulkerBoxLocationList.addAll(result)
+                val myType = object : TypeToken<HashMap<String, ArrayList<SimpleLocation>>>() {}.type  // 대충 뭔가를 우회한다고 이런 방식 쓴다고 함. 이건 일반적인 방법으론 객체 생성이 막혀있어서 익명객체 쓴 듯?  자세한건 https://namocom.tistory.com/671
+                val result = gson.fromJson<HashMap<String, ArrayList<SimpleLocation>>>(simplifiedJsonStr, myType)
+                shulkerBoxLocationsPerWorld.putAll(result)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
