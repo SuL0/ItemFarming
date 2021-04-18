@@ -14,7 +14,12 @@ import org.bukkit.inventory.ItemStack
 // Root node
 
 // Rank -> Rarity?
-class NodeRank(override var name: String, override var chance: Double, override val childNodeList: ArrayList<NodeCategory>): InternalNode, ChildNodeContainer<NodeCategory> {
+class NodeRank(override var name: String, chance: Double, override val childNodeList: ArrayList<NodeCategory>): InternalNode, ChildNodeContainer<NodeCategory> {
+    override var chance: Double = chance
+        set(value) {
+            field = value
+            refreshSort(TreeDataMgr.rootNodeList)
+        }
 
     // rootNodeList에 추가
     init {
@@ -25,6 +30,11 @@ class NodeRank(override var name: String, override var chance: Double, override 
     companion object {
         const val NOTATION_NAME = "Rank"
         const val NOTATION_COLOR = "§4§l"
+
+        // parentNode의 childNodeList (=자신이 포함된 childNodeList)를 it.chance 기준 내림차순으로 정렬 (생성, chance 변경 시)
+        fun refreshSort(childNodeList: ArrayList<NodeRank>) {
+            childNodeList.sortByDescending { it.chance }
+        }
     }
 }
 

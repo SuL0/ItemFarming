@@ -12,15 +12,26 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 // Internal node
-class NodeCategory(override val parentNode: NodeRank, override var name: String, override var chance: Double, override val childNodeList: ArrayList<NodeItemAbstract>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItemAbstract> {
+class NodeCategory(override val parentNode: NodeRank, override var name: String, chance: Double, override val childNodeList: ArrayList<NodeItemAbstract>): InternalNode, ParentNodeContainer<NodeRank>, ChildNodeContainer<NodeItemAbstract> {
+    override var chance: Double = chance
+        set(value) {
+            field = value
+            refreshSort(parentNode.childNodeList)
+        }
 
     // parentNode에 연결(link)
     init {
         parentNode.childNodeList.add(this)
+        refreshSort(parentNode.childNodeList)
     }
     companion object {
         const val NOTATION_NAME = "Category"
         const val NOTATION_COLOR = "§2§l"
+
+        // parentNode의 childNodeList (=자신이 포함된 childNodeList)를 it.chance 기준 내림차순으로 정렬 (생성, chance 변경 시)
+        fun refreshSort(childNodeList: ArrayList<NodeCategory>) {
+            childNodeList.sortByDescending { it.chance }
+        }
     }
 }
 

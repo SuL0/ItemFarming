@@ -12,7 +12,7 @@ class NodeItemNormal(parentNode: NodeCategory,
     // parentNode에 연결(link)
     init {
         parentNode.childNodeList.add(this)
-        refreshSort()
+        refreshSort(parentNode.childNodeList)
     }
 
     // default constructor(UUID 랜덤 생성)

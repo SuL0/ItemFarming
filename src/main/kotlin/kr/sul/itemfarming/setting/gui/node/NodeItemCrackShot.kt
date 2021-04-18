@@ -13,7 +13,7 @@ class NodeItemCrackShot(parentNode: NodeCategory,
     // parentNode에 연결(link)
     init {
         parentNode.childNodeList.add(this)
-        refreshSort()
+        refreshSort(parentNode.childNodeList)
     }
 
     override val item: ItemStack

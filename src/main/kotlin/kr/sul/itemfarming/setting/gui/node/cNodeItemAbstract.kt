@@ -37,7 +37,7 @@ abstract class NodeItemAbstract(override val parentNode: NodeCategory,
     var chance: Double = chance
         set(value) {
             field = value
-            refreshSort()
+            refreshSort(parentNode.childNodeList)
         }
 
 
@@ -50,14 +50,14 @@ abstract class NodeItemAbstract(override val parentNode: NodeCategory,
 */
 
 
-    // parentNode.childNodeList를 it.chance 기준 내림차순으로 정렬 (생성, chance 변경 시)
-    protected fun refreshSort() {
-        parentNode.childNodeList.sortByDescending { it.chance }
-    }
-
     companion object {
         const val NOTATION_NAME = "Item"
         const val NOTATION_COLOR = "§9§l"
+
+        // parentNode의 childNodeList (=자신이 포함된 childNodeList)를 it.chance 기준 내림차순으로 정렬 (생성, chance 변경 시)
+        fun refreshSort(childNodeList: ArrayList<NodeItemAbstract>) {
+            childNodeList.sortByDescending { it.chance }
+        }
     }
 }
 
