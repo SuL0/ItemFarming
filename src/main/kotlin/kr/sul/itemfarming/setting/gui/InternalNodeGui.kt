@@ -84,6 +84,13 @@ abstract class InternalNodeGui<T: InternalNode> {
             inv.setItem(62, goToRankListGuiButton)
         }
         // GUI 식별용 색깔 아이템
+        var totalChance = 0.0
+        getViewingGuiCurrentNodeList(p).forEach { totalChance += it.chance }
+        if (totalChance == 100.0) {
+            itemForidentificationInGuiBottom.nameIB("§7확률 합계 : §a&n${totalChance}%§a §2§l[GOOD]")
+        } else {
+            itemForidentificationInGuiBottom.nameIB("§7확률 합계 : §c&n${totalChance}%§c §4§l[BAD]")
+        }
         for (i in 63..71) {
             inv.setItem(i, itemForidentificationInGuiBottom)
         }
