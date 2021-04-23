@@ -11,7 +11,6 @@ import kr.sul.servercore.util.ItemBuilder.loreIB
 import kr.sul.servercore.util.ItemBuilder.nameIB
 import org.apache.logging.log4j.util.TriConsumer
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -22,7 +21,7 @@ import org.bukkit.inventory.ItemStack
 
 // < GUI >
 // ParentNode - CurrentNode - ChildNode
-abstract class InternalNodeMgr<T: InternalNode> {
+abstract class InternalNodeGui<T: InternalNode> {
     // abstract start
     // 가장 범용
     abstract val NODE_CLASS: Class<T>  // 아래 3개는 Current Node
@@ -153,13 +152,13 @@ abstract class InternalNodeMgr<T: InternalNode> {
                         if (e.currentItem.type == NODE_ITEM_MATERIAL) {
                             val clickedNode = getObjFromGuiItem(NODE_CLASS, e.currentItem, getViewingGuiCurrentNodeList(p))
                             // !: Child Node List GUI로 넘어가기
-                            this@InternalNodeMgr.goToChildNodeListGui(p, clickedNode)
+                            this@InternalNodeGui.goToChildNodeListGui(p, clickedNode)
                         }
 
 
                         // Node 추가 버튼 클릭
                         else if (e.currentItem.isSimilar(createCurrentNodeButton)) {
-                            this@InternalNodeMgr.createCurrentNodeObjWithGui(p)
+                            this@InternalNodeGui.createCurrentNodeObjWithGui(p)
                         }
 
                         // Only NodeCategory용 NodeRank로 돌아가기 버튼
@@ -176,7 +175,7 @@ abstract class InternalNodeMgr<T: InternalNode> {
                             setTag(NODE_TYPE_COLOR, NODE_TYPE_NAME)
                             internalNodeObjToEdit = clickedNode
                             backToPreviousGuiMethod =
-                                Runnable { this@InternalNodeMgr.openCurrentNodeListGui(p, getViewingGuiParentNode(p)) }
+                                Runnable { this@InternalNodeGui.openCurrentNodeListGui(p, getViewingGuiParentNode(p)) }
                             setDeleteButton((clickedNode as ChildNodeContainer<*>).childNodeList.size) {
                                 getViewingGuiCurrentNodeList(p).remove(clickedNode)
                             }

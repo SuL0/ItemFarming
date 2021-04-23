@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui.node
 
-import kr.sul.itemfarming.setting.gui.InternalNodeMgr
+import kr.sul.itemfarming.setting.gui.InternalNodeGui
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.nodecompponent.ChildNodeContainer
@@ -42,7 +42,7 @@ class NodeRank(override var name: String, chance: Double, override val childNode
 
 
 
-object NodeRankListMgr: InternalNodeMgr<NodeRank>() {
+object NodeRankListMgr: InternalNodeGui<NodeRank>() {
     override val NODE_CLASS = NodeRank::class.java
     override val NODE_TYPE_NAME = NodeRank.NOTATION_NAME
     override val NODE_TYPE_COLOR = NodeRank.NOTATION_COLOR

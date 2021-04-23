@@ -45,7 +45,7 @@ class NodeManagementGui(private val p: Player,
             }
         }
         if (internalNodeObjToEdit is NodeRank || internalNodeObjToEdit is NodeCategory) {
-            val itemForDisplay = InternalNodeMgr.makeItemForGuiDisplay(ItemStack(Material.WOOL), internalNodeObjToEdit, objToEditClassName, "어차피 Lore는 지워질거라 필없")
+            val itemForDisplay = InternalNodeGui.makeItemForGuiDisplay(ItemStack(Material.WOOL), internalNodeObjToEdit, objToEditClassName, "어차피 Lore는 지워질거라 필없")
             TreeUtil.ForCommon.deleteAllLoreExceptFirstLine(itemForDisplay)
             return itemForDisplay
         }

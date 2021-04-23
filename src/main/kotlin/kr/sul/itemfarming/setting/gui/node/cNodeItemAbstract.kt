@@ -62,7 +62,7 @@ abstract class NodeItemAbstract(override val parentNode: NodeCategory,
 }
 
 // 쉬프트+왼클: Confirm 후 추가
-// InternalNodeMgr에서 따온 코드 중 InternalNode -> NodeCategory 로 무조건 변경해도 됨
+// InternalNodeGui에서 따온 코드 중 InternalNode -> NodeCategory 로 무조건 변경해도 됨
 
 // 페이지 기능
 object NodeItemListMgr: Listener {

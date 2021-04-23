@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui.node
 
-import kr.sul.itemfarming.setting.gui.InternalNodeMgr
+import kr.sul.itemfarming.setting.gui.InternalNodeGui
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.nodecompponent.ChildNodeContainer
 import kr.sul.itemfarming.setting.gui.nodecompponent.InternalNode
@@ -39,7 +39,7 @@ class NodeCategory(override val parentNode: NodeRank, override var name: String,
 
 
 
-object NodeCategoryListMgr: InternalNodeMgr<NodeCategory>() {
+object NodeCategoryListMgr: InternalNodeGui<NodeCategory>() {
     override val NODE_CLASS = NodeCategory::class.java
     override val NODE_TYPE_NAME = NodeCategory.NOTATION_NAME
     override val NODE_TYPE_COLOR = NodeCategory.NOTATION_COLOR
@@ -106,7 +106,7 @@ object NodeCategoryListMgr: Listener {
                 wool.durability = 0
             }
 
-            val made = InternalNodeMgr.makeItemForGuiDisplay(wool, it, "Category", "Item")
+            val made = InternalNodeGui.makeItemForGuiDisplay(wool, it, "Category", "Item")
             inv.addItem(made)
         }
 
@@ -132,7 +132,7 @@ object NodeCategoryListMgr: Listener {
             if (e.isLeftClick) {
                 // Category 선택 버튼 클릭 -> Item GUI로 넘어가기
                 if (e.currentItem.type == CATEGORY_ITEM_MATERIAL) {
-                    val clickedCategory = InternalNodeMgr.getObjFromGuiItem(NodeCategory::class.java, e.currentItem, currentGuiNode.childNodeList)
+                    val clickedCategory = InternalNodeGui.getObjFromGuiItem(NodeCategory::class.java, e.currentItem, currentGuiNode.childNodeList)
 
                     // !: Item GUI로 넘어가기
 //                        LeafItemGuiMgr.openItemListGui(p, clickedCategory)
