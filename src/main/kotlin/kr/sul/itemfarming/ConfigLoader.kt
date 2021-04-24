@@ -1,7 +1,7 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.FarmingShulkerBox
+import kr.sul.itemfarming.farmingshulkerbox.data.DataStorage
 import org.bukkit.Bukkit
 
 object ConfigLoader {
@@ -16,7 +16,7 @@ object ConfigLoader {
             val itemFarmingSection = config.getConfigurationSection("아이템파밍")
             itemFarmingSection.getStringList("적용할월드_목록").forEach {
                 if (Bukkit.getWorld(it) != null) {
-                    FarmingShulkerBox.activeWorlds.add(Bukkit.getWorld(it))
+                    DataStorage.activeWorlds.add(Bukkit.getWorld(it))  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
                 }
             }
 
@@ -26,7 +26,7 @@ object ConfigLoader {
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    FarmingShulkerBox.categoryDropNumRange = FarmingShulkerBox.DropNumRange(min, max)
+                    DataStorage.categoryDropNumRange = DataStorage.DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }
@@ -35,7 +35,7 @@ object ConfigLoader {
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    FarmingShulkerBox.itemDropNumRange = FarmingShulkerBox.DropNumRange(min, max)
+                    DataStorage.itemDropNumRange = DataStorage.DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }
