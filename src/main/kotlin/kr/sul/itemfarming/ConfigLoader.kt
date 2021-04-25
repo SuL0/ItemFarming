@@ -1,10 +1,40 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.data.DataStorage
+import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
 import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.World
+import kotlin.random.Random
 
 object ConfigLoader {
+    val activeWorlds = arrayListOf<World>()  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
+
+    // ConfigLoader에서 덮어씀
+    lateinit var categoryDropNumRange: DropNumRange
+    lateinit var itemDropNumRange: DropNumRange
+    //
+
+
+    data class SimpleLocation(val x: Double, val y: Double, val z: Double) {  // 셜커 상자 위치 저장 전용
+        companion object {
+            // 중앙 위치로 변환 후, SimpleLocation으로 저장
+            fun convertFromLoc(loc: Location): SimpleLocation {
+                val centerLoc = loc.toCenterLocation()
+                return SimpleLocation(centerLoc.x, centerLoc.y, centerLoc.z)
+            }
+        }
+    }
+
+    data class DropNumRange(val min: Int, val max:Int) {
+        fun random(): Int {
+            return Random.nextInt(min, max+1)
+        }
+    }
+
+
+
+
     init {
         plugin.saveDefaultConfig()
     }
@@ -14,9 +44,9 @@ object ConfigLoader {
         val config = plugin.config
         Bukkit.getScheduler().runTask(plugin) {
             val itemFarmingSection = config.getConfigurationSection("아이템파밍")
-            itemFarmingSection.getStringList("적용할월드_목록").forEach {
-                if (Bukkit.getWorld(it) != null) {
-                    DataStorage.activeWorlds.add(Bukkit.getWorld(it))  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
+            itemFarmingSection.getStringList("적용할월드_목록").forEach { world ->
+                if (Bukkit.getWorld(world) != null) {
+                    activeWorlds.add(Bukkit.getWorld(world))  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
                 }
             }
 
@@ -26,7 +56,7 @@ object ConfigLoader {
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    DataStorage.categoryDropNumRange = DataStorage.DropNumRange(min, max)
+                    categoryDropNumRange = DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }
@@ -35,7 +65,7 @@ object ConfigLoader {
                 try {
                     val min = split[0].toInt()
                     val max = split[1].toInt()
-                    DataStorage.itemDropNumRange = DataStorage.DropNumRange(min, max)
+                    itemDropNumRange = DropNumRange(min, max)
                 } catch (ignored: NumberFormatException) {
                 }
             }

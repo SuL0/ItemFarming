@@ -1,7 +1,6 @@
 package kr.sul.itemfarming
 
-import kr.sul.itemfarming.farmingshulkerbox.FarmingShulkerBox
-import kr.sul.itemfarming.farmingshulkerbox.PlacingShulkerBoxSaver
+import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
 import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import org.bukkit.Bukkit
@@ -19,9 +18,11 @@ class Main : JavaPlugin(), Listener {
     override fun onEnable() {
         plugin = this as Plugin
         registerClasses()
-        TreeDataMgr.loadAll()
-        ConfigLoader.loadConfig()
-        PlacingShulkerBoxSaver.DataMgr.loadAll()
+
+        // 데이터 로드
+        TreeDataMgr.loadAll() // 확률
+        ConfigLoader.loadConfig() // 콘피그
+        PlacingShulkerBoxSaver.DataMgr.loadAll() // 셜커 위치
     }
 
     override fun onDisable() {
@@ -32,13 +33,12 @@ class Main : JavaPlugin(), Listener {
     private fun registerClasses() {
         getCommand("ItemFarming").executor = Command
         Bukkit.getPluginManager().registerEvents(this, this)
-        Bukkit.getPluginManager().registerEvents(FarmingShulkerBox, this)
         Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
     }
 
 
 
-//    // FIXME: TO TEST
+//    // NOTE: TO TEST
 //    @EventHandler
 //    fun onClick(e: InventoryClickEvent) {
 //        Bukkit.broadcastMessage("click")

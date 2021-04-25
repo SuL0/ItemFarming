@@ -1,5 +1,6 @@
 package kr.sul.itemfarming.farmingshulkerbox
 
+import kr.sul.itemfarming.ConfigLoader
 import kr.sul.itemfarming.Main.Companion.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -16,10 +17,14 @@ import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
 class ShulkerSpawnPoint(private val spawnPoint: Location): Listener {
+    private val enabled = ConfigLoader.activeWorlds.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     private var spawnedShulkerMob: Shulker? = null
     private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block
     init {
-        spawnShulker()
+        if (enabled) {
+            Bukkit.getPluginManager().registerEvents(this, plugin)
+            spawnShulker()
+        }
     }
 
 

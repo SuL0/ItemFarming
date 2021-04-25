@@ -1,7 +1,7 @@
 package kr.sul.itemfarming.farmingshulkerbox
 
+import kr.sul.itemfarming.ConfigLoader
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.data.DataStorage
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.node.NodeRank
@@ -35,9 +35,9 @@ class ShulkerLootInv(private val p: Player): Listener {
             decorateShulkerGuiBasedOnRank(rank, lootInv)
 
             // 카테고리 - 아이템
-            for (c in 0 until DataStorage.categoryDropNumRange.random()) {
+            for (c in 0 until ConfigLoader.categoryDropNumRange.random()) {
                 val category = pickAtRandom(rank.childNodeList) ?: continue
-                for (i in 0 until DataStorage.itemDropNumRange.random()) {
+                for (i in 0 until ConfigLoader.itemDropNumRange.random()) {
                     val item = pickAtRandom(category.childNodeList) ?: continue
                     lootInv.addItem(item.item)
                 }
