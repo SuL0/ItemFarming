@@ -1,9 +1,7 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.World
 import kotlin.random.Random
 
@@ -15,16 +13,6 @@ object ConfigLoader {
     lateinit var itemDropNumRange: DropNumRange
     //
 
-
-    data class SimpleLocation(val x: Double, val y: Double, val z: Double) {  // 셜커 상자 위치 저장 전용
-        companion object {
-            // 중앙 위치로 변환 후, SimpleLocation으로 저장
-            fun convertFromLoc(loc: Location): SimpleLocation {
-                val centerLoc = loc.toCenterLocation()
-                return SimpleLocation(centerLoc.x, centerLoc.y, centerLoc.z)
-            }
-        }
-    }
 
     data class DropNumRange(val min: Int, val max:Int) {
         fun random(): Int {

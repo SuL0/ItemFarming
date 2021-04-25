@@ -7,6 +7,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.Block
+import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Shulker
 import org.bukkit.event.EventHandler
@@ -16,7 +17,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
-class ShulkerSpawnPoint(private val spawnPoint: Location): Listener {
+class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.activeWorlds.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     private var spawnedShulkerMob: Shulker? = null
     private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block
@@ -25,24 +26,25 @@ class ShulkerSpawnPoint(private val spawnPoint: Location): Listener {
             Bukkit.getPluginManager().registerEvents(this, plugin)
             spawnShulker()
         }
+
+        // 이전 서버에서 설치됐던(리붓 때문) 셜커가 있으면 삭제
+        spawnPoint.getNearbyEntities(0.1, 0.1, 0.1).forEach {
+            it.remove()
+        }
+        if (spawnPoint.block.type != Material.AIR) {
+            if (spawnPoint.block.state is ShulkerBox) {  // 셜커 블럭
+                spawnPoint.block.type = Material.AIR
+            } else {  // 이외
+                throw Exception("${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
+            }
+        }
     }
 
 
 
 
     private fun spawnShulker() {
-        // TODO: 서버 부팅 시 shulkerBoxLocationsPerWorld에 있는 셜커와 셜커박스 모두 제거
-//        // 혹시 이미 스폰된 셜커가 있으면 삭제 (보통 리붓 때문)
-//        spawnPoint.getNearbyEntities(0.1, 0.1, 0.1).forEach {
-//            it.remove()
-//        }
-//        if (spawnPoint.block.type != Material.AIR) {
-//            if (spawnPoint.block.state is ShulkerBox) {  // 셜커 블럭
-//                spawnPoint.block.type = Material.AIR
-//            } else {  // 이외
-//                throw Exception("${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
-//            }
-//        }
+
         // 셜커 스폰
         spawnedShulkerMob = spawnPoint.world.spawnEntity(spawnPoint, EntityType.SHULKER) as Shulker
         spawnedShulkerMob!!.customName = "§c아이템을 지닌 셜커"  // NOTE : 작동 확인해야 함

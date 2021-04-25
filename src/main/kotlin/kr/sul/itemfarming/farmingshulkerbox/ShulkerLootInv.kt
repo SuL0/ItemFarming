@@ -28,7 +28,7 @@ class ShulkerLootInv(private val p: Player): Listener {
 
         if (TreeDataMgr.rootNodeList.size >= 1) {
             // GUI에 아이템 채우기
-            // TODO: 중복 방지
+            // TODO: 아이템 중복 드랍 방지
             val rank = pickAtRandom(TreeDataMgr.rootNodeList)!!
             p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 셜커 상자를 발견했습니다.")
             lootInv = Bukkit.createInventory(null, 27, "${rank.name} §0등급 셜커 소지품")
