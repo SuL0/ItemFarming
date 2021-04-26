@@ -145,7 +145,7 @@ object TreeDataMgr {
         if (!backUpFolder.exists()) {
             backUpFolder.mkdir()
         }
-        CustomFileUtil.deleteFilesOlderThanNdays(1, backUpFolder, 10)  // 오래된 백업 파일 정리   // TODO: 작동?
+        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10)  // 오래된 백업 파일 정리
 
         // 백업 파일 생성
         val calendar = Calendar.getInstance()
