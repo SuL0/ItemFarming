@@ -11,12 +11,15 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.ShulkerBox
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import java.io.BufferedWriter
 import java.io.File
@@ -47,6 +50,27 @@ object PlacingShulkerBoxSaver {
         }
 
         @EventHandler(priority = EventPriority.HIGH)
+        fun onAttackShulkerMobWithRemover(e: EntityDamageByEntityEvent) {
+            if (e.isCancelled) return
+            val victim = e.entity
+            val damager = e.damager
+            if (damager is Player && damager.isOp
+                    && damager.inventory.itemInMainHand.type == Material.PURPLE_SHULKER_BOX
+                    && victim.type == EntityType.SHULKER
+                    && ConfigLoader.activeWorlds.contains(victim.world)) {
+
+                val centeredLoc = victim.location.toCenterLocation()
+
+                val find = shulkerBoxSpawnPoints.find { it.spawnPoint.x == centeredLoc.x && it.spawnPoint.y == centeredLoc.y && it.spawnPoint.z == centeredLoc.z }  // 그냥 spawnPoint == centeredLoc 하면 다 false로 나옴
+                if (find != null) {
+                    damager.sendMessage("§6§lIF: §f셜커 상자 위치를 §c삭제§f했습니다.")
+                    shulkerBoxSpawnPoints.remove(find)
+                    // 셜커 엔티티 죽이기
+                    victim.remove()
+                }
+            }
+        }
+        @EventHandler(priority = EventPriority.HIGH)
         fun onBreakShulkerBox(e: BlockBreakEvent) {
             if (e.isCancelled) return
             if (e.player.isOp && e.block.state is ShulkerBox
@@ -54,7 +78,7 @@ object PlacingShulkerBoxSaver {
 
                 val centeredLoc = e.block.location.toCenterLocation()
 
-                val find = shulkerBoxSpawnPoints.find { it.spawnPoint == centeredLoc }
+                val find = shulkerBoxSpawnPoints.find { it.spawnPoint.x == centeredLoc.x && it.spawnPoint.y == centeredLoc.y && it.spawnPoint.z == centeredLoc.z }
                 if (find != null) {
                     e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §c삭제§f했습니다.")
                     shulkerBoxSpawnPoints.remove(find)
