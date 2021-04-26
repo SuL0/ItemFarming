@@ -8,6 +8,7 @@ import kr.sul.itemfarming.farmingshulkerbox.ShulkerSpawnPoint
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.ShulkerBox
 import org.bukkit.event.EventHandler
@@ -30,14 +31,18 @@ object PlacingShulkerBoxSaver {
         @EventHandler(priority = EventPriority.HIGH)
         fun onPlaceShulkerBox(e: BlockPlaceEvent) {
             if (e.isCancelled) return
-            if (e.player.isOp && e.block.state is ShulkerBox
+            if (e.player.isOp && e.block.type == Material.PURPLE_SHULKER_BOX
                         && ConfigLoader.activeWorlds.contains(e.block.world)) {
 
                 val centeredLoc = e.block.location.toCenterLocation()
 
                 e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §a등록§f했습니다.")
-                val shulkerSpawnPoint = ShulkerSpawnPoint(centeredLoc)
-                shulkerBoxSpawnPoints.add(shulkerSpawnPoint)
+                e.isCancelled = true
+
+                Bukkit.getScheduler().runTask(plugin) {
+                    val shulkerSpawnPoint = ShulkerSpawnPoint(centeredLoc)
+                    shulkerBoxSpawnPoints.add(shulkerSpawnPoint)
+                }
             }
         }
 
@@ -81,7 +86,7 @@ object PlacingShulkerBoxSaver {
 
 
     // 파일에서 읽어오기
-    // TOOD: BACKUP
+    // TODO: 백업
     object DataMgr {
         private val dataFile = File("${plugin.dataFolder}/shulkerbox_location_list.json")
 
