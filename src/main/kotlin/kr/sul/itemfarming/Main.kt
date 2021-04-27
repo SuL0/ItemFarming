@@ -1,5 +1,6 @@
 package kr.sul.itemfarming
 
+import kr.sul.itemfarming.farmingshulkerbox.ModifyShulkerForFarming
 import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
 import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
@@ -34,6 +35,7 @@ class Main : JavaPlugin(), Listener {
         getCommand("ItemFarming").executor = Command
         Bukkit.getPluginManager().registerEvents(this, this)
         Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
+        Bukkit.getPluginManager().registerEvents(ModifyShulkerForFarming, this)
     }
 
 
