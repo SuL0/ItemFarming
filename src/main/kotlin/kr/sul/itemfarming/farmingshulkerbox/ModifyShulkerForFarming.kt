@@ -25,9 +25,9 @@ object ModifyShulkerForFarming : Listener {
     // Levitation 포션효과 제거
     @EventHandler
     fun onDamage(e: EntityDamageByEntityEvent) {
-        if (e.damager.type == EntityType.SHULKER_BULLET && e.entity is Player) {
+        if (e.damager.type == EntityType.SHULKER_BULLET && e.entity is LivingEntity) {
             Bukkit.getScheduler().runTask(plugin) {
-                (e.entity as Player).removePotionEffect(PotionEffectType.LEVITATION)
+                (e.entity as LivingEntity).removePotionEffect(PotionEffectType.LEVITATION)
             }
         }
     }
