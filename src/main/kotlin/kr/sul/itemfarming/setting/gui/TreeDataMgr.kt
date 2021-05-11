@@ -2,8 +2,14 @@ package kr.sul.itemfarming.setting.gui
 
 import com.google.gson.GsonBuilder
 import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.setting.gui.node.*
-import kr.sul.servercore.util.CustomFileUtil
+import kr.sul.itemfarming.setting.gui.node.NodeCategory
+import kr.sul.itemfarming.setting.gui.node.NodeItemCrackShot
+import kr.sul.itemfarming.setting.gui.node.NodeItemNormal
+import kr.sul.itemfarming.setting.gui.node.NodeRank
+import kr.sul.servercore.file.CustomFileUtil
+import kr.sul.servercore.file.SimplyBackUp
+import kr.sul.servercore.file.simplylog.LogLevel
+import kr.sul.servercore.file.simplylog.SimplyLog
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
@@ -15,9 +21,6 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
 import java.io.*
-import java.nio.file.Files
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 // TODO: 데이터 Excel로 변환 추가.  (그것으로 확률 수정까지 가능하게)
@@ -29,13 +32,13 @@ object TreeDataMgr {
     private const val NAME_KEY = "name"
     private const val CHANCE_KEY = "chance"
     private const val CHILD_NODE_LIST_KEY = "childNodeList"
-    private const val NODE_ITEM_CLASS = "itemNodeClass"
+    private const val NODE_ITEM_CLASS_KEY = "itemNodeClass"
     private const val NAME_FOR_REFERENCE_KEY = "nameForReference"
     private const val ITEM_STACK_KEY = "itemStack"
     private const val CS_PARENT_NODE_KEY = "itemStack"
 
-    fun saveAll() {
-        backUpData()
+    fun saveAll(asAsync: Boolean) {
+        backUp(asAsync)
         createFilesIfNotExist()
 
         // rootNodeList Json화 시키기
@@ -63,19 +66,23 @@ object TreeDataMgr {
                     val itemJson = JSONObject()
                     when (item) {
                         is NodeItemNormal -> {
-                            itemJson[NODE_ITEM_CLASS] = NodeItemNormal::class.java.name
+                            itemJson[NODE_ITEM_CLASS_KEY] = NodeItemNormal::class.java.name
                             itemJson[NAME_FOR_REFERENCE_KEY] = item.displayName
                             itemJson[ITEM_STACK_KEY] = toBase64(item.item)  // 자신만의 것
                             itemJson[CHANCE_KEY] = item.chance
                         }
                         is NodeItemCrackShot -> {
-                            itemJson[NODE_ITEM_CLASS] = NodeItemCrackShot::class.java.name
+                            itemJson[NODE_ITEM_CLASS_KEY] = NodeItemCrackShot::class.java.name
                             itemJson[NAME_FOR_REFERENCE_KEY] = item.displayName
                             itemJson[CS_PARENT_NODE_KEY] = item.csParentNode  // 자신만의 것
                             itemJson[CHANCE_KEY] = item.chance
                         }
+
+                        // 로그 남기기
                         else -> {
-                            // TODO: 로그 남기기
+                            SimplyLog.log(LogLevel.ERROR_NORMAL, plugin,
+                                "[saveAll] 아이템이 NodeItemNormal || NodeItemCrackShot 중 아무것도 일치하지 않음",
+                                "itemNode: ${item.displayName} | ${item.chance} | ${item.uuid}")
                         }
                     }
 
@@ -117,7 +124,7 @@ object TreeDataMgr {
                     val nodeCategory = NodeCategory(nodeRankObj, categoryJson[NAME_KEY] as String, categoryJson[CHANCE_KEY] as Double, arrayListOf())
 
                     for (itemJson in (categoryJson[CHILD_NODE_LIST_KEY] as JSONArray).map { it as JSONObject }) {
-                        when (itemJson[NODE_ITEM_CLASS] as String) {
+                        when (itemJson[NODE_ITEM_CLASS_KEY] as String) {
                             NodeItemNormal::class.java.name -> {
                                 val item = fromBase64<ItemStack>(itemJson[ITEM_STACK_KEY] as String)
                                 NodeItemNormal(nodeCategory, item, itemJson[CHANCE_KEY] as Double)
@@ -127,7 +134,13 @@ object TreeDataMgr {
                                 NodeItemCrackShot(nodeCategory, csParentNode, itemJson[CHANCE_KEY] as Double)
                             }
                             else -> {
-                                // TODO: 로그 남기기
+                                SimplyLog.log(LogLevel.ERROR_NORMAL, plugin,
+                                    "[loadAll] 아이템이 NodeItemNormal || NodeItemCrackShot 중 아무것도 일치하지 않음",
+                                    "상위 nodeRank: ${nodeRankObj.name} -> 상위 nodeCategory: ${nodeCategory.name}",
+                                    "itemJson[NODE_ITEM_CLASS_KEY]: ${itemJson[NODE_ITEM_CLASS_KEY] as String}",
+                                    "itemJson[ITEM_STACK_KEY]: ${itemJson[ITEM_STACK_KEY]}",
+                                    "itemJson[CS_PARENT_NODE_KEY]: ${itemJson[CS_PARENT_NODE_KEY]}",
+                                    " - ITEM_STACK_KEY, CS_PARENT_NODE_KEY 둘 중 한개는 null 이 아니어야 함")
                             }
                         }
                     }
@@ -135,24 +148,7 @@ object TreeDataMgr {
             }
         } catch (e: Exception) {  // try에서 if로 체크 생까고 어떠한 문제라도 생기면 걍 catch로 보내서 처리해
             e.printStackTrace()
-            backUpData()
-        }
-    }
-
-
-
-    private fun backUpData() {
-        if (!backUpFolder.exists()) {
-            backUpFolder.mkdir()
-        }
-        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10)  // 오래된 백업 파일 정리
-
-        // 백업 파일 생성
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd (HHmmss)")
-        val backUpFile = File("$backUpFolder/${dateFormat.format(calendar.time)}.json")
-        if (!backUpFile.exists()) {  // 혹시 모를 위험 방지
-            Files.copy(dataFile.toPath(), backUpFile.toPath())
+            backUp(false)
         }
     }
 
@@ -160,6 +156,10 @@ object TreeDataMgr {
 
 
 
+    private fun backUp(asAsync: Boolean) {
+        SimplyBackUp.backUpFile(null, dataFile, backUpFolder, false, asAsync)
+        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync)  // 오래된 백업 파일 정리
+    }
 
     private fun createFilesIfNotExist() {
         if (!plugin.dataFolder.exists()) {
@@ -188,16 +188,16 @@ object TreeDataMgr {
 
 
     object DataSaveTaskRegister {
-        private const val INTERVAL = 180.toLong() // sec
+        private const val INTERVAL = (3*60)*20.toLong()
         private var bukkitTask: BukkitTask? = null
 
         // 파밍 데이터에 수정이 일어났을 시, INTERVAL 후 저장 task 등록 (1개까지만 활성 가능)
         fun tryToRegisterDataSaveTask() {
             if (bukkitTask != null) return
             bukkitTask = Bukkit.getScheduler().runTaskLater(plugin, {
-                saveAll()
+                saveAll(true)
                 bukkitTask = null
-            }, INTERVAL*20)
+            }, INTERVAL)
         }
     }
 }

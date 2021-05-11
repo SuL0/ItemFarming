@@ -5,6 +5,10 @@ import com.google.gson.reflect.TypeToken
 import kr.sul.itemfarming.ConfigLoader
 import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.farmingshulkerbox.ShulkerSpawnPoint
+import kr.sul.servercore.file.CustomFileUtil
+import kr.sul.servercore.file.SimplyBackUp
+import kr.sul.servercore.file.simplylog.LogLevel
+import kr.sul.servercore.file.simplylog.SimplyLog
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -87,7 +91,7 @@ object PlacingShulkerBoxSaver {
         }
 
         // 등록 안된 셜커 우클릭 될 시, 바로 등록
-        // 이것이 있기에, 데이터가 날아가거나 등록이 제대로 안됐다 해도 문제 X
+        // 데이터가 날아간 상황을 대비
         @EventHandler(priority = EventPriority.HIGH)
         fun onOpenShulkerBox(e: PlayerInteractEvent) {
             if (e.isCancelled) return
@@ -97,10 +101,12 @@ object PlacingShulkerBoxSaver {
                 val centeredLoc = e.clickedBlock.location.toCenterLocation()
 
                 val find = shulkerBoxSpawnPoints.find { it.spawnPoint == centeredLoc }
-                if (find == null) {
+                if (find == null) {  // 못 찾았을 시
                     val shulkerSpawnPoint = ShulkerSpawnPoint(centeredLoc)
                     shulkerBoxSpawnPoints.add(shulkerSpawnPoint)
-                    // TODO: LogToFile 이용해서 로그 찍기
+
+                    SimplyLog.log(LogLevel.ERROR_LOW, plugin,
+                        "위치 ${centeredLoc.x}, ${centeredLoc.y}, ${centeredLoc.z} 에 등록이 되지 않은 셜커상자를 ${e.player.name} 이 발견")
                 }
             }
         }
@@ -109,10 +115,11 @@ object PlacingShulkerBoxSaver {
 
 
 
-    // 파일에서 읽어오기
-    // TODO: 백업
+    // shulkerbox_location_list 데이터 관리
     object DataMgr {
         private val dataFile = File("${plugin.dataFolder}/shulkerbox_location_list.json")
+        private val backUpFolder = File("${plugin.dataFolder}/backup")
+
 
         fun saveAll() {
             // 데이터를 File 저장용으로 변환
@@ -141,6 +148,10 @@ object PlacingShulkerBoxSaver {
             } finally {
                 bWriter.close()
             }
+
+            // 백업
+            SimplyBackUp.backUpFile(null, dataFile, backUpFolder, false, asAsync = false)
+            CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync = false)
         }
 
         fun loadAll() {

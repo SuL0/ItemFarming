@@ -27,7 +27,7 @@ class Main : JavaPlugin(), Listener {
     }
 
     override fun onDisable() {
-        TreeDataMgr.saveAll()
+        TreeDataMgr.saveAll(false)
         PlacingShulkerBoxSaver.DataMgr.saveAll()
     }
 
