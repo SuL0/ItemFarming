@@ -2,6 +2,8 @@ package kr.sul.itemfarming.farmingshulkerbox
 
 import kr.sul.itemfarming.ConfigLoader
 import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.servercore.file.simplylog.LogLevel
+import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -27,13 +29,6 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
             spawnPoint.getNearbyEntities(0.1, 0.1, 0.1).forEach {
                 it.remove()
             }
-            if (spawnPoint.block.type != Material.AIR) {
-                if (spawnPoint.block.state is ShulkerBox) {  // 셜커 블럭
-                    spawnPoint.block.type = Material.AIR
-                } else {  // 이외
-                    throw Exception("${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
-                }
-            }
 
             // Event Register 후 셜커 스폰
             Bukkit.getPluginManager().registerEvents(this, plugin)
@@ -45,6 +40,15 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
 
     // 셜커 스폰
     private fun spawnShulker() {
+        if (spawnPoint.block.type != Material.AIR) {
+            if (spawnPoint.block.state is ShulkerBox) {  // 셜커 블럭
+                spawnPoint.block.type = Material.AIR
+            } else {  // 이외
+                SimplyLog.log(LogLevel.ERROR_LOW, plugin, "${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
+                throw Exception("${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
+            }
+        }
+
         spawnedShulkerMob = spawnPoint.world.spawnEntity(spawnPoint, EntityType.SHULKER) as Shulker
         spawnedShulkerMob!!.customName = "§c아이템을 지닌 셜커"  // NOTE : 작동 확인해야 함
     }
