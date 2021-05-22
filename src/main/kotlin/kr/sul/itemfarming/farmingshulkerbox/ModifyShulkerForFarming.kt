@@ -1,7 +1,8 @@
 package kr.sul.itemfarming.farmingshulkerbox
 
 import com.shampaggon.crackshot.CSDirector
-import com.shampaggon.crackshot.events.WeaponDamageEntityEvent
+import com.shampaggon.crackshot.events.WeaponDamageEntityEvent as WeaponDamageEntityEvent1
+import com.shampaggon.crackshot2.events.WeaponDamageEntityEvent as WeaponDamageEntityEvent2
 import kr.sul.itemfarming.Main.Companion.plugin
 import org.bukkit.Bukkit
 import org.bukkit.entity.*
@@ -54,13 +55,14 @@ object ModifyShulkerForFarming : Listener {
     // 데미지 1/3
     // 정리해서 껍질 안에 있을 때 : 데미지의 2/3
     // 껍질 밖에 있을 때 : 데미지의 3/3
-    @EventHandler
-    fun onWeaponDamage(e: WeaponDamageEntityEvent) {
-        if (e.victim.type == EntityType.SHULKER) {
-            e.damage = e.damage * 0.3 +0.01
+    // -> 밑의 ListenerOfWeaponDamageForCrackShot1, ListenerOfWeaponDamageForCrackShot2
+    init {
+        if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")) {
+            Bukkit.getPluginManager().registerEvents(ListenerOfWeaponDamageForCrackShot1, plugin)
+        } else if (Bukkit.getPluginManager().isPluginEnabled("CrackShot-2")) {
+            Bukkit.getPluginManager().registerEvents(ListenerOfWeaponDamageForCrackShot2, plugin)
         }
     }
-
 
 
     // SHULKER_BULLET의 최대 생존시간은 10초
@@ -73,6 +75,34 @@ object ModifyShulkerForFarming : Listener {
                     entity.remove()
                 }
             }, 200L)
+        }
+    }
+}
+
+
+
+
+object ListenerOfWeaponDamageForCrackShot1: Listener {
+    @EventHandler
+    // 셜커 껍질 밖에 있으면 실행됨
+    // 데미지 1/3
+    // 정리해서 껍질 안에 있을 때 : 데미지의 2/3
+    // 껍질 밖에 있을 때 : 데미지의 3/3
+    fun onWeaponDamage(e: WeaponDamageEntityEvent1) {
+        if (e.victim.type == EntityType.SHULKER) {
+            e.damage = e.damage * 0.3 +0.01
+        }
+    }
+}
+object ListenerOfWeaponDamageForCrackShot2: Listener {
+    @EventHandler
+    // 셜커 껍질 밖에 있으면 실행됨
+    // 데미지 1/3
+    // 정리해서 껍질 안에 있을 때 : 데미지의 2/3
+    // 껍질 밖에 있을 때 : 데미지의 3/3
+    fun onWeaponDamage(e: WeaponDamageEntityEvent2) {
+        if (e.victim.type == EntityType.SHULKER) {
+            e.damage = e.damage * 0.3 +0.01
         }
     }
 }

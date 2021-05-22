@@ -1,8 +1,11 @@
 package kr.sul.itemfarming.setting.gui.node
 
+import com.shampaggon.crackshot.WeaponNbtParentNodeMgr
 import kr.sul.crackshotaddition.infomanager.weapon.WeaponInfoExtractor
-import kr.sul.crackshotaddition.util.CrackShotAdditionAPI
+import kr.sul.crackshotaddition.util.CrackShotAdditionAPI as CrackShotAdditionAPI1
+import com.shampaggon.crackshot2.addition.util.CrackShotAdditionAPI as CrackShotAdditionAPI2
 import kr.sul.itemfarming.Main
+import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
@@ -77,13 +80,33 @@ object NodeItemListMgr: Listener {
     const val GUI_NAME_PREFIX = "§I§F§:§I§t§e§m"
     val howToCreateCurrentNodeObj = TriConsumer<Player, ItemStack, Double> { p, item, chance ->
         val viewingGuiParentNode = getViewingGuiParentNode(p)
-        if (CrackShotAdditionAPI.isValidCrackShotWeapon(item)) {
-            p.sendMessage(" §7└ 등록된 아이템은 §fCrackShot §7으로 감지되었습니다.")
-            val csParentNode = WeaponInfoExtractor(p, item).mainFixedParentNode
-            NodeItemCrackShot(viewingGuiParentNode, csParentNode, chance)
-        } else {
-            p.sendMessage(" §7└ 등록된 아이템은 §fNormal Item §7으로 감지되었습니다.")
-            NodeItemNormal(viewingGuiParentNode, item, chance)
+
+        // 본섭용 크랙샷
+        if (plugin.server.pluginManager.isPluginEnabled("CrackShot")
+                && plugin.server.pluginManager.isPluginEnabled("CrackShotAddition")) {
+            if (CrackShotAdditionAPI1.isValidCrackShotWeapon(item)) {
+                p.sendMessage(" §7└ 등록된 아이템은 §fCrackShot §7으로 감지되었습니다.")
+                val csParentNode = WeaponInfoExtractor(p, item).mainFixedParentNode
+                NodeItemCrackShot(viewingGuiParentNode, csParentNode, chance)
+            } else {
+                p.sendMessage(" §7└ 등록된 아이템은 §fNormal Item §7으로 감지되었습니다.")
+                NodeItemNormal(viewingGuiParentNode, item, chance)
+            }
+        }
+
+        // 부섭용 크랙샷
+        else if (plugin.server.pluginManager.isPluginEnabled("CrackShot-2")) {
+            if (CrackShotAdditionAPI2.isValidCrackShotWeapon(item)) {
+                p.sendMessage(" §7└ 등록된 아이템은 §fCrackShot §7으로 감지되었습니다.")
+                val csParentNode = WeaponNbtParentNodeMgr.getWeaponParentNodeFromNbt(item)!!
+                NodeItemCrackShot(viewingGuiParentNode, csParentNode, chance)
+            } else {
+                p.sendMessage(" §7└ 등록된 아이템은 §fNormal Item §7으로 감지되었습니다.")
+                NodeItemNormal(viewingGuiParentNode, item, chance)
+            }
+        }
+        else {
+            throw Exception("CrackShot & CrackShotAddition, CrackShot-2 중 아무것도 인식되지 않았습니다.")
         }
     }
 
