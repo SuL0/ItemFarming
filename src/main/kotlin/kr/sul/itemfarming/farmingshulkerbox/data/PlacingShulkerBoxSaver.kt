@@ -165,6 +165,7 @@ object PlacingShulkerBoxSaver {
                 val gson = GsonBuilder().setPrettyPrinting().create()
                 val myType = object : TypeToken<HashMap<String, ArrayList<SimpleLocation>>>() {}.type  // 대충 뭔가를 우회한다고 이런 방식 쓴다고 함. 이건 일반적인 방법으론 객체 생성이 막혀있어서 익명객체 쓴 듯?  자세한건 https://namocom.tistory.com/671
                 val result = gson.fromJson<HashMap<String, ArrayList<SimpleLocation>>>(simplifiedJsonStr, myType)
+                    ?: return
 
                 // File 저장용 데이터에서 실사용 데이터로 변환하기
                 Bukkit.getScheduler().runTask(plugin) {
