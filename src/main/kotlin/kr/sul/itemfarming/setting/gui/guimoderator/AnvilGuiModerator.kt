@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import java.util.function.Consumer
 
 object AnvilGuiModerator {
-    private val itemRight = run {
+    private val itemInRight = run {
         val item = ItemStack(Material.ENCHANTED_BOOK)
             .nameIB("§6§lTIP: ")
             .loreIB(" §7└ §f텍스트 창 클릭 §7-> §fCtrl+A §7-> §f입력", 2)
@@ -24,18 +24,18 @@ object AnvilGuiModerator {
     }
 
     // 키 입력 받아서 수행할 method를 parameter에 첨부
-    fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable, itemLeft: ItemStack? = null) {
+    fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable, itemInLeft: ItemStack? = null) {
         if (p.gameMode != GameMode.CREATIVE) {
             p.gameMode = GameMode.CREATIVE
             p.sendMessage("§6§lIF: §7Anvil 사용을 위해 Creative로 변경했습니다.")
         }
         val anvilGuiBuilder = AnvilGUI.Builder().run {
-            if (itemLeft == null) {
+            if (itemInLeft == null) {
                 itemLeft(ItemStack(Material.BOOK_AND_QUILL))
             } else {
-                itemLeft(itemLeft)  // NodeItem에서 사용됨
+                itemLeft(itemInLeft)  // NodeItem에서 사용됨
             }
-            itemRight(itemRight)
+            itemRight(itemInRight)
             text(text)
             onComplete { _, string ->
                 runAfterGettingInput.accept(string)
@@ -48,5 +48,4 @@ object AnvilGuiModerator {
             open(p)
         }
     }
-
 }

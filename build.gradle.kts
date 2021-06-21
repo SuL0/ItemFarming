@@ -55,6 +55,10 @@ tasks {
         from(files("$pluginStorage/${project.name}_S.jar"))
         into(file("C:/Users/PHR/Desktop/SERVER2/plugins"))
     }
+    val copyPlugin_2 = register<Copy>("copyPlugin_2") {
+        from(files("$pluginStorage/${project.name}_S.jar"))
+        into(file("C:/Users/PHR/Desktop/마인즈서버/plugins"))
+    }
 
     jar {
         archiveFileName.set("${project.name}_S.jar")
@@ -69,6 +73,6 @@ tasks {
 //                        zipTree(it)
 //                }
 //        )
-        finalizedBy(copyPlugin)
+        finalizedBy(copyPlugin, copyPlugin_2)
     }
 }
