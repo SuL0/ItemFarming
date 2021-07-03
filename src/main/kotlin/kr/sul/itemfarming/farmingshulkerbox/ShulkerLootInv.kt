@@ -5,6 +5,8 @@ import kr.sul.itemfarming.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.node.NodeRank
+import kr.sul.servercore.file.simplylog.LogLevel
+import kr.sul.servercore.file.simplylog.SimplyLog
 import kr.sul.servercore.util.ItemBuilder.durabilityIB
 import kr.sul.servercore.util.ItemBuilder.nameIB
 import org.bukkit.Bukkit
@@ -39,7 +41,7 @@ class ShulkerLootInv(private val p: Player): Listener {
                 val category = pickAtRandom(rank.childNodeList) ?: continue
                 for (i in 0 until ConfigLoader.itemDropNumRange.random()) {
                     val item = pickAtRandom(category.childNodeList) ?: continue
-                    lootInv.addItem(item.item)
+                    lootInv.addItemRandomly(item.item)
                 }
             }
         } else {
@@ -49,8 +51,6 @@ class ShulkerLootInv(private val p: Player): Listener {
     fun open() {
         p.openInventory(lootInv)
     }
-
-
 
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -66,6 +66,7 @@ class ShulkerLootInv(private val p: Player): Listener {
             e.isCancelled = true
         }
     }
+
 
 
 
@@ -96,6 +97,20 @@ class ShulkerLootInv(private val p: Player): Listener {
                 }
             }
             return null
+        }
+
+        private fun Inventory.addItemRandomly(item: ItemStack) {
+            if (this.firstEmpty() == -1) {
+                SimplyLog.log(LogLevel.ERROR_LOW, plugin, "파밍 상자에 아이템을 넣으려 했으나, 남는 slot이 부족한 관계로 무시되었음.")
+                return
+            }
+
+            val emptySlots = arrayListOf<Int>()
+            for (i in 0 until this.size) {
+                if (this.getItem(i) == null) emptySlots.add(i)
+            }
+
+            this.setItem(emptySlots.random(), item)
         }
     }
 }
