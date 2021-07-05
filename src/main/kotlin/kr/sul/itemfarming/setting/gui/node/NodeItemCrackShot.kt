@@ -3,7 +3,6 @@ package kr.sul.itemfarming.setting.gui.node
 import kr.sul.itemfarming.Main.Companion.plugin
 import org.bukkit.inventory.ItemStack
 import java.util.*
-import com.shampaggon.crackshot.CSMinion as CSMinion1
 import com.shampaggon.crackshot2.CSMinion as CSMinion2
 
 class NodeItemCrackShot(parentNode: NodeCategory,
@@ -21,10 +20,11 @@ class NodeItemCrackShot(parentNode: NodeCategory,
     override val item: ItemStack
         get() {
             return when {
+                /*
                 // 본섭용 크랙샷
                 plugin.server.pluginManager.isPluginEnabled("CrackShot") -> {
                     CSMinion1.getInstance().vendingMachine(csParentNode)
-                }
+                }*/
                 
                 // 부섭용 크랙샷
                 plugin.server.pluginManager.isPluginEnabled("CrackShot-2") -> {

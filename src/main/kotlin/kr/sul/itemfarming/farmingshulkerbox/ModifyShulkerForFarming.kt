@@ -1,7 +1,6 @@
 package kr.sul.itemfarming.farmingshulkerbox
 
-import com.shampaggon.crackshot.CSDirector
-import com.shampaggon.crackshot.events.WeaponDamageEntityEvent as WeaponDamageEntityEvent1
+import com.shampaggon.crackshot2.CSDirector
 import com.shampaggon.crackshot2.events.WeaponDamageEntityEvent as WeaponDamageEntityEvent2
 import kr.sul.itemfarming.Main.Companion.plugin
 import org.bukkit.Bukkit
@@ -57,11 +56,11 @@ object ModifyShulkerForFarming : Listener {
     // 껍질 밖에 있을 때 : 데미지의 3/3
     // -> 밑의 ListenerOfWeaponDamageForCrackShot1, ListenerOfWeaponDamageForCrackShot2
     init {
-        if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")) {
-            Bukkit.getPluginManager().registerEvents(ListenerOfWeaponDamageForCrackShot1, plugin)
-        } else if (Bukkit.getPluginManager().isPluginEnabled("CrackShot-2")) {
+//        if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")) {
+//            Bukkit.getPluginManager().registerEvents(ListenerOfWeaponDamageForCrackShot1, plugin)
+//        } else if (Bukkit.getPluginManager().isPluginEnabled("CrackShot-2")) {
             Bukkit.getPluginManager().registerEvents(ListenerOfWeaponDamageForCrackShot2, plugin)
-        }
+//        }
     }
 
 
@@ -81,7 +80,7 @@ object ModifyShulkerForFarming : Listener {
 
 
 
-
+/*
 object ListenerOfWeaponDamageForCrackShot1: Listener {
     @EventHandler
     // 셜커 껍질 밖에 있으면 실행됨
@@ -93,7 +92,7 @@ object ListenerOfWeaponDamageForCrackShot1: Listener {
             e.damage = e.damage * 0.3 +0.01
         }
     }
-}
+}*/
 object ListenerOfWeaponDamageForCrackShot2: Listener {
     @EventHandler
     // 셜커 껍질 밖에 있으면 실행됨
