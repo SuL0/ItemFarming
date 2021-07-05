@@ -31,12 +31,11 @@ class Main : JavaPlugin(), Listener {
         Bukkit.getScheduler().runTask(plugin) {
             if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")
                     || Bukkit.getPluginManager().isPluginEnabled("CrackShotAddition")) {
+                Bukkit.getLogger().log(Level.WARNING, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot(+CrackShotAddition)은 지원하지 않습니다.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
                 SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot(+CrackShotAddition)은 지원하지 않습니다.")
-                Bukkit.getLogger().log(Level.WARNING, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot(+CrackShotAddition)은 지원하지 않습니다.")
                 Bukkit.shutdown()
             }
         }
-
     }
 
     override fun onDisable() {
