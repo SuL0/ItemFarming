@@ -29,9 +29,10 @@ class Main : JavaPlugin(), Listener {
         PlacingShulkerBoxSaver.DataMgr.loadAll() // 셜커 위치
 
         Bukkit.getScheduler().runTask(plugin) {
-            if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")) {
-                SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot은 지원하지 않습니다.")
-                Bukkit.getLogger().log(Level.WARNING, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot은 지원하지 않습니다.")
+            if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")
+                    || Bukkit.getPluginManager().isPluginEnabled("CrackShotAddition")) {
+                SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot(+CrackShotAddition)은 지원하지 않습니다.")
+                Bukkit.getLogger().log(Level.WARNING, "현재 ItemFarming은 CrackShot2가 아닌 구버전 CrackShot(+CrackShotAddition)은 지원하지 않습니다.")
                 Bukkit.shutdown()
             }
         }

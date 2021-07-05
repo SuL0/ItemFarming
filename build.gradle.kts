@@ -24,9 +24,7 @@ dependencies {
     compileOnly("com.zaxxer", "HikariCP", "4.0.3")
 
     compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/ServerCore_S.jar"))
-    compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/CrackShot_S.jar"))
     compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/CrackShot-2_S.jar"))
-    compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/CrackShotAddition_S.jar"))
 }
 
 spigot {
@@ -35,7 +33,7 @@ spigot {
     apiVersion = "1.12"
     version = project.version.toString()
     depends = listOf("ServerCore")
-    softDepends = listOf("CrackShot", "CrackShotAddition", "CrackShot-2")
+    softDepends = listOf("CrackShot-2")
     commands {
         create("ItemFarming") {
             permission = "op.op"
