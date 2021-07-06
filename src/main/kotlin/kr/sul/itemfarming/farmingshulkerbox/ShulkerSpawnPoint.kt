@@ -50,7 +50,7 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         }
 
         spawnedShulkerMob = spawnPoint.world.spawnEntity(spawnPoint, EntityType.SHULKER) as Shulker
-        spawnedShulkerMob!!.customName = "§c아이템을 지닌 셜커"  // NOTE : 작동 확인해야 함
+        spawnedShulkerMob!!.customName = "§c아이템을 지닌 셜커"
     }
 
 
@@ -86,7 +86,7 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
             e.clickedBlock.world.spawnParticle(Particle.CLOUD, e.clickedBlock.location, 5, 0.0, 0.0, 0.0, 0.1)
 
             // ShulkerLootInv 열어주기
-            ShulkerLootInv(e.player).open()
+            ShulkerLootInv(e.player, e.clickedBlock.location).open()
         }
     }
 
