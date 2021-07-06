@@ -331,6 +331,9 @@ object NodeItemListMgr: Listener {
     private object NodeItemUuidAPI {
         private const val UUID_KEY = "NodeItem-UUID"
 
+        /**
+         * Item List GUI에서 식별용으로 사용
+         */
         fun carveSpecificUniqueId(item: ItemStack, uuid: UUID) {
             if (hasUniqueID(item)) throw Exception()
             val nbti = NbtItem(item)
