@@ -43,6 +43,11 @@ object PlacingShulkerBoxSaver {
 
                 val centeredLoc = e.block.location.toCenterLocation()
 
+                if (shulkerBoxSpawnPoints.any { it.spawnPoint == centeredLoc }) {
+                    e.player.sendMessage("§6§lIF: §f이미 해당 위치에 등록된 셜커가 있습니다.")
+                    e.isCancelled = true
+                    return
+                }
                 e.player.sendMessage("§6§lIF: §f셜커 상자 위치를 §a등록§f했습니다.")
                 e.isCancelled = true
 
