@@ -30,6 +30,8 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
     init {
         Bukkit.getPluginManager().registerEvents(this, plugin)
 
+        val thisWorldConfigData = ConfigLoader.configDataList[loc.world]!!   // 해당 셜커의 월드에 해당하는 ConfigData를 불러옴
+
         if (TreeDataMgr.rootNodeList.size >= 1) {
             // GUI에 아이템 채우기
             val rank = pickAtRandom(TreeDataMgr.rootNodeList)
@@ -39,7 +41,7 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
 
             val categoryDuplicatePreventer = hashSetOf<NodeCategory>()
             // 카테고리 - 아이템
-            for (c in 0 until ConfigLoader.categoryDropNumRange.random()) {
+            for (c in 0 until thisWorldConfigData.categoryDropNumRage.random()) {
                 var randCategory: NodeCategory
                 var whileCnt = 0
                 while(true) {  // 카테고리 중복되게 나오는 것 방지
@@ -53,7 +55,7 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
                         throw Exception()
                     }
                 }
-                for (i in 0 until ConfigLoader.itemDropNumRange.random()) {
+                for (i in 0 until thisWorldConfigData.itemDropNumRange.random()) {
                     val randItem = pickAtRandom(randCategory.childNodeList)
                     lootInv.addItemRandomly(randItem.item)
                 }

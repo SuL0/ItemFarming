@@ -20,9 +20,9 @@ import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
-    private val enabled = ConfigLoader.activeWorlds.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
+    private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     private var spawnedShulkerMob: Shulker? = null
-    private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block
+    private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
     init {
         if (enabled) {
             // 이전 서버에서 설치됐던(리붓 때문) 셜커가 있으면 삭제

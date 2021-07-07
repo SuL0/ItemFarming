@@ -39,7 +39,7 @@ object PlacingShulkerBoxSaver {
         fun onPlaceShulkerBox(e: BlockPlaceEvent) {
             if (e.isCancelled) return
             if (e.player.isOp && e.block.type == Material.PURPLE_SHULKER_BOX
-                        && ConfigLoader.activeWorlds.contains(e.block.world)) {
+                        && ConfigLoader.configDataList.contains(e.block.world)) {
 
                 val centeredLoc = e.block.location.toCenterLocation()
 
@@ -66,7 +66,7 @@ object PlacingShulkerBoxSaver {
             if (damager is Player && damager.isOp
                     && damager.inventory.itemInMainHand.type == Material.PURPLE_SHULKER_BOX
                     && victim.type == EntityType.SHULKER
-                    && ConfigLoader.activeWorlds.contains(victim.world)) {
+                    && ConfigLoader.configDataList.contains(victim.world)) {
 
                 val centeredLoc = victim.location.toCenterLocation()
 
@@ -83,7 +83,7 @@ object PlacingShulkerBoxSaver {
         fun onBreakShulkerBox(e: BlockBreakEvent) {
             if (e.isCancelled) return
             if (e.player.isOp && e.block.state is ShulkerBox
-                        && ConfigLoader.activeWorlds.contains(e.block.world)) {
+                        && ConfigLoader.configDataList.contains(e.block.world)) {
 
                 val centeredLoc = e.block.location.toCenterLocation()
 
@@ -100,7 +100,7 @@ object PlacingShulkerBoxSaver {
         @EventHandler(priority = EventPriority.HIGH)
         fun onOpenShulkerBox(e: PlayerInteractEvent) {
             if (e.isCancelled) return
-            if (ConfigLoader.activeWorlds.contains(e.player.world)
+            if (ConfigLoader.configDataList.contains(e.player.world)
                         && e.action == Action.RIGHT_CLICK_BLOCK && e.clickedBlock.state is ShulkerBox) {
 
                 val centeredLoc = e.clickedBlock.location.toCenterLocation()

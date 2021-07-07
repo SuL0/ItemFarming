@@ -1,26 +1,14 @@
 package kr.sul.itemfarming
 
 import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.servercore.file.simplylog.LogLevel
+import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit
 import org.bukkit.World
-import kotlin.random.Random
 
 object ConfigLoader {
-    val activeWorlds = arrayListOf<World>()  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
-
-    // ConfigLoader에서 덮어씀
-    lateinit var categoryDropNumRange: DropNumRange
-    lateinit var itemDropNumRange: DropNumRange
-    //
-
-
-    data class DropNumRange(val min: Int, val max:Int) {
-        fun random(): Int {
-            return Random.nextInt(min, max+1)
-        }
-    }
-
-
+    // World는 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
+    val configDataList = hashMapOf<World, ConfigData>()
 
 
     init {
@@ -31,32 +19,23 @@ object ConfigLoader {
     fun loadConfig() {
         val config = plugin.config
         Bukkit.getScheduler().runTask(plugin) {
-            val itemFarmingSection = config.getConfigurationSection("아이템파밍")
-            itemFarmingSection.getStringList("적용할월드_목록").forEach { world ->
-                if (Bukkit.getWorld(world) != null) {
-                    activeWorlds.add(Bukkit.getWorld(world))  // 셜커 블럭 설치 Listen 용, shulkerBoxLocationsPerWorld 에서 활성 비활성 거르는용
+            for (worldName in config.getKeys(false)) {
+                val world = Bukkit.getWorld(worldName)
+                val categoryNumRange = ConfigData.DropNumRange.convert(config.getString("$worldName.카테고리"))
+                val itemNumRange = ConfigData.DropNumRange.convert(config.getString("$worldName.아이템"))
+
+                if (Bukkit.getWorld(worldName) == null) {
+                    SimplyLog.log(LogLevel.ERROR_NORMAL, plugin, "ItemFarming에 등록된 월드 $worldName 이 서버에 존재하지 않는 월드임")
+                    continue
                 }
+                if (categoryNumRange == null || itemNumRange == null) {
+                    SimplyLog.log(LogLevel.ERROR_NORMAL, plugin, "ItemFarming의 $worldName.categoryNumRange 또는 $worldName.itemNumRange 의 값이 양식에 맞지 않음")
+                    continue
+                }
+
+                configDataList[world] = ConfigData(world, categoryNumRange, itemNumRange)
             }
 
-            val dropNumRangeSection = itemFarmingSection.getConfigurationSection("아이템_개수_범위")
-            dropNumRangeSection.getString("카테고리").run {
-                val split = this.split("~")
-                try {
-                    val min = split[0].toInt()
-                    val max = split[1].toInt()
-                    categoryDropNumRange = DropNumRange(min, max)
-                } catch (ignored: NumberFormatException) {
-                }
-            }
-            dropNumRangeSection.getString("아이템").run {
-                val split = this.split("~")
-                try {
-                    val min = split[0].toInt()
-                    val max = split[1].toInt()
-                    itemDropNumRange = DropNumRange(min, max)
-                } catch (ignored: NumberFormatException) {
-                }
-            }
         }
     }
 }
