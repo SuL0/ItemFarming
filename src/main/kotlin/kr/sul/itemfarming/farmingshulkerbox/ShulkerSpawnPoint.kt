@@ -10,18 +10,21 @@ import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.block.ShulkerBox
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Shulker
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     private var spawnedShulkerMob: Shulker? = null
+    private var spawnedShulkerMobHealth: Int? = SHULKER_HP
+
     private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
     init {
         if (enabled) {
@@ -50,8 +53,56 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         }
 
         spawnedShulkerMob = spawnPoint.world.spawnEntity(spawnPoint, EntityType.SHULKER) as Shulker
-        spawnedShulkerMob!!.customName = "§c아이템을 지닌 셜커"
+        updateShulkerName()
     }
+    private fun updateShulkerName() {
+        if (spawnedShulkerMob != null) {
+            spawnedShulkerMob!!.customName = "§f가디언 HP : §c${spawnedShulkerMobHealth!!.toDouble()}"
+        }
+    }
+
+
+
+    /*
+        데미지 상관없이 n대 때리면 Shulker 죽이기
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    fun onDamage(e: EntityDamageEvent) {
+        if (e.isCancelled) return
+        if (e.entity == spawnedShulkerMob) {
+            if (e.cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK ||
+                    e.cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK ||
+                    e.cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+                onDamageOfShulker()
+                e.isCancelled = true
+            } else {
+                e.isCancelled = true  // 투사체던 뭐던 간에 일단 '데미지'는 취소시킴
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    fun onProjectileHit(e: ProjectileHitEvent) {  // 껍질 안이든 밖이든, 투사체 맞으면 무조건 실행됨
+        if (e.hitEntity != null && e.hitEntity == spawnedShulkerMob) {
+            val entDamager = e.entity
+            if (entDamager is Arrow || entDamager is Egg || entDamager is Snowball) {
+                entDamager.remove()  // 셜커 껍질에 화살로 된 총알이 맞으면 튕겨나면서 공중에서 끼여버리고, 이렇게 될 시 onProjectileHit 이벤트를 엄청나게 call하는 문제가 발생하기 때문
+                onDamageOfShulker()
+            }
+        }
+    }
+    private fun onDamageOfShulker() {
+        spawnedShulkerMobHealth = spawnedShulkerMobHealth!!.minus(1)
+        updateShulkerName()
+        if (spawnedShulkerMobHealth!! <= 0) {
+            spawnedShulkerMobHealth = null
+            spawnedShulkerMob!!.health = 0.0
+            spawnedShulkerMob = null
+            Bukkit.broadcastMessage("${spawnedShulkerMob == null}")
+        }
+    }
+    //
+
+
 
 
     // 죽을 때 스케쥴러 등록해서 나중에 해당 위치에 다시 스폰
@@ -93,5 +144,6 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
 
     companion object {
         const val RESPAWN_DELAY = (30*60)*20.toLong() // tick
+        val SHULKER_HP = ConfigLoader.shulkerHP
     }
 }
