@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.world.ChunkUnloadEvent
 
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
@@ -28,14 +29,20 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
     init {
         if (enabled) {
-            // 이전 서버에서 설치됐던(리붓 때문) 셜커가 있으면 삭제
-            spawnPoint.getNearbyEntities(0.1, 0.1, 0.1).forEach {
-                it.remove()
-            }
+            val chunkLoaded = spawnPoint.chunk.load()
 
-            // Event Register 후 셜커 스폰
-            Bukkit.getPluginManager().registerEvents(this, plugin)
-            spawnShulker()
+            if (!chunkLoaded) {
+                SimplyLog.log(LogLevel.ERROR_NORMAL, plugin, "${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 가 위치한 청크 로드에 실패함")
+            } else {
+                // 이전 서버에서 설치됐던(리붓 때문) 셜커가 있으면 삭제
+                spawnPoint.getNearbyEntities(0.1, 0.1, 0.1).forEach {
+                    it.remove()
+                }
+
+                // Event Register 후 셜커 스폰
+                Bukkit.getPluginManager().registerEvents(this, plugin)
+                spawnShulker()
+            }
         }
     }
 
@@ -97,7 +104,6 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
             spawnedShulkerMobHealth = null
             spawnedShulkerMob!!.health = 0.0
             spawnedShulkerMob = null
-            Bukkit.broadcastMessage("${spawnedShulkerMob == null}")
         }
     }
     //
@@ -141,6 +147,15 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         }
     }
 
+
+
+    @EventHandler(priority = EventPriority.LOW)
+    fun cancelChunkUnloading(e: ChunkUnloadEvent) {
+        if (e.isCancelled) return
+        if (e.chunk == spawnPoint.chunk) {
+            e.isCancelled = true
+        }
+    }
 
     companion object {
         const val RESPAWN_DELAY = (30*60)*20.toLong() // tick
