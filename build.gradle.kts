@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.20"
     id("kr.entree.spigradle") version "2.2.3"
 }
 
