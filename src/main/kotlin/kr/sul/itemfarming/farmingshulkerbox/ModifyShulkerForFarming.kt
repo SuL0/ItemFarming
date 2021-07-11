@@ -26,26 +26,23 @@ object ModifyShulkerForFarming : Listener {
         if (e.damager.type == EntityType.SHULKER_BULLET && e.entity is LivingEntity) {
             Bukkit.getScheduler().runTask(plugin) {
                 (e.entity as LivingEntity).removePotionEffect(PotionEffectType.LEVITATION)
+                e.damage = e.damage/2
             }
         }
     }
 
-    // SHULKER_BULLET의 최대 생존시간은 10초
     @EventHandler
-    fun onShoot(e: ProjectileLaunchEvent) {
+    fun stopShulkerShooting(e: ProjectileLaunchEvent) {
         if (e.entityType == EntityType.SHULKER_BULLET) {
-            val entity = e.entity
-            Bukkit.getScheduler().runTaskLater(plugin, {
-                if (!entity.isDead) {
-                    entity.remove()
-                }
-            }, 200L)
+            e.isCancelled = true
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onShulkerDeath(e: EntityDeathEvent) {
         if (e.isCancelled) return
-        e.entity.location.world.dropItem(e.entity.location, ItemStack(Material.SHULKER_SHELL).nameIB("&7[ &f셜커껍데기 &7]"))
+        if (e.entity is Shulker) {
+            e.entity.location.world.dropItem(e.entity.location, ItemStack(Material.SHULKER_SHELL).nameIB("&7[ &f상자 껍데기 &7]"))
+        }
     }
 }
