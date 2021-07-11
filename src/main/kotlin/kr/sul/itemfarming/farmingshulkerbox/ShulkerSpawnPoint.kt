@@ -24,13 +24,20 @@ import org.bukkit.event.world.ChunkUnloadEvent
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     private var spawnedShulkerMob: Shulker? = null
-    private var spawnedShulkerMobHealth: Int? = SHULKER_HP
+    private var spawnedShulkerMobHealth: Int? = null
 
     private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
+
+    companion object {
+        const val RESPAWN_DELAY = (2*60)*20.toLong() // tick
+        val SHULKER_HP = ConfigLoader.shulkerHP
+    }
+
     init {
         if (enabled) {
             val chunkLoaded = spawnPoint.chunk.load()
 
+            // TODO 단순히 청크 언로드 방지로 청크 문제를 해결하는 것은 좋지 않아보임.
             if (!chunkLoaded) {
                 SimplyLog.log(LogLevel.ERROR_NORMAL, plugin, "${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 가 위치한 청크 로드에 실패함")
             } else {
@@ -60,6 +67,7 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         }
 
         spawnedShulkerMob = spawnPoint.world.spawnEntity(spawnPoint, EntityType.SHULKER) as Shulker
+        spawnedShulkerMobHealth = SHULKER_HP
         updateShulkerName()
     }
     private fun updateShulkerName() {
@@ -81,9 +89,9 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
                     e.cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK ||
                     e.cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
                 onDamageOfShulker()
-                e.isCancelled = true
+                e.damage = 0.0
             } else {
-                e.isCancelled = true  // 투사체던 뭐던 간에 일단 '데미지'는 취소시킴
+                e.damage = 0.0  // 투사체던 뭐던 간에 일단 '데미지'는 취소시킴
             }
         }
     }
@@ -101,8 +109,8 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         spawnedShulkerMobHealth = spawnedShulkerMobHealth!!.minus(1)
         updateShulkerName()
         if (spawnedShulkerMobHealth!! <= 0) {
-            spawnedShulkerMobHealth = null
             spawnedShulkerMob!!.health = 0.0
+            spawnedShulkerMobHealth = null
             spawnedShulkerMob = null
         }
     }
@@ -155,10 +163,5 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         if (e.chunk == spawnPoint.chunk) {
             e.isCancelled = true
         }
-    }
-
-    companion object {
-        const val RESPAWN_DELAY = (30*60)*20.toLong() // tick
-        val SHULKER_HP = ConfigLoader.shulkerHP
     }
 }
