@@ -1,5 +1,6 @@
 package kr.sul.itemfarming
 
+import kr.sul.itemfarming.farmingshulkerbox.GlowNearbyShulker
 import kr.sul.itemfarming.farmingshulkerbox.ModifyShulkerForFarming
 import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
 import kr.sul.itemfarming.setting.Command
@@ -48,8 +49,8 @@ class Main : JavaPlugin(), Listener {
         Bukkit.getPluginManager().registerEvents(this, this)
         Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
         Bukkit.getPluginManager().registerEvents(ModifyShulkerForFarming, this)
+        Bukkit.getPluginManager().registerEvents(GlowNearbyShulker, this)
     }
-
 
 
 //    // NOTE: TO TEST

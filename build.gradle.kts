@@ -16,15 +16,17 @@ repositories {
 }
 
 val pluginStorage = "C:/Users/PHR/Desktop/PluginStorage"
+val nmsBukkitPath = "C:/Users/PHR/Desktop/마인즈서버/paper-1.12.2-R0.1-SNAPSHOT-shaded.jar"
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.destroystokyo.paper", "paper-api", "1.12.2-R0.1-SNAPSHOT")
-    implementation("org.spigotmc", "spigot", "1.12.2-R0.1-SNAPSHOT")
+    compileOnly(files(nmsBukkitPath))
 
     compileOnly("com.zaxxer", "HikariCP", "4.0.3")
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.6.0")
 
-    compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/ServerCore_S.jar"))
-    compileOnly(files("C:/Users/PHR/Desktop/PluginStorage/CrackShot-2_S.jar"))
+    compileOnly(files("$pluginStorage/ServerCore_S.jar"))
+    compileOnly(files("$pluginStorage/CrackShot-2_S.jar"))
+    compileOnly(files("$pluginStorage/Dependencies/GlowAPI_v1.4.6_S.jar"))
 }
 
 spigot {

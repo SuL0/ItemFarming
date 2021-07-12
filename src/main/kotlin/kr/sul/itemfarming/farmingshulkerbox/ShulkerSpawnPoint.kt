@@ -23,10 +23,10 @@ import org.bukkit.event.world.ChunkUnloadEvent
 
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
-    private var spawnedShulkerMob: Shulker? = null
+    var spawnedShulkerMob: Shulker? = null
     private var spawnedShulkerMobHealth: Int? = null
 
-    private var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
+    var placedShulkerBlock: Block? = null  // 타입은 ShulkerBox 아니고 Block. 셜커당 해당 Class 한 개를 가짐
 
     companion object {
         const val RESPAWN_DELAY = (2*60)*20.toLong() // tick
