@@ -19,12 +19,17 @@ object GlowNearbyShulker: Listener {
 
     init {
         Bukkit.getScheduler().runTaskTimer(plugin, {
-            currentShulkerGlowMap.forEach { (p, list) ->
-                list.forEach { shulker ->
-                    GlowAPI.setGlowing(shulker, false, p)
+            // 거리 <= DISTANCE 조건에 부합하지 않는 글로우된 셜커는 글로우 삭제
+            currentShulkerGlowMap.forEach { (p, shulkerList) ->
+                shulkerList.filter { !(it.world == p.world
+                        && it.location.distance(p.location) <= DISTANCE) }
+                        .forEach { shulkerToDeleteGlow ->
+                    GlowAPI.setGlowing(shulkerToDeleteGlow, false, p)
                 }
             }
-            // 정상 셜커
+
+
+            // 정상 셜커 (GOLD)
             for (shulker in PlacingShulkerBoxSaver.shulkerBoxSpawnPoints) {
                 for (p in Bukkit.getOnlinePlayers().filter { it.isOp }) {
                     if (shulker.spawnPoint.world == p.world
