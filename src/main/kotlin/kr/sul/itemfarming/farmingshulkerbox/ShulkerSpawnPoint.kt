@@ -60,7 +60,11 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
         if (spawnPoint.block.type != Material.AIR) {
             if (spawnPoint.block.state is ShulkerBox) {  // 셜커 블럭
                 spawnPoint.block.type = Material.AIR
-            } else {  // 이외
+            }
+            else if (spawnPoint.block.type == Material.GRASS || spawnPoint.block.type == Material.LONG_GRASS) {  // 잔디
+                spawnPoint.block.type = Material.AIR
+            }
+            else {  // 이외
                 SimplyLog.log(LogLevel.ERROR_LOW, plugin, "${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
                 throw Exception("${spawnPoint.x}, ${spawnPoint.y}, ${spawnPoint.z} 에 이상한 블럭이 설치 돼 있음. - ${spawnPoint.block.type}")
             }

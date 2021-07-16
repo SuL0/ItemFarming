@@ -176,14 +176,23 @@ object PlacingShulkerBoxSaver {
                 Bukkit.getScheduler().runTask(plugin) {
                     result.forEach { (worldName, simpleLocList) ->
                         val world: World? = Bukkit.getWorld(worldName)
-                        if (world != null) {
+                        // 월드가 존재하지 않아 관련 데이터가 로딩되지 못한 경우
+                        if (world == null) {
+                            SimplyBackUp.backUpFile("${dataFile.nameWithoutExtension}-오류 전 백업.${dataFile.extension}", dataFile, backUpFolder, false, asAsync = true)
+                            SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "${dataFile.name} 파일 중 world $worldName 을 불러올 수 없음")
+                        }
+                        else {
                             simpleLocList.forEach { simpleLoc ->
-                                val location = Location(world, simpleLoc.x, simpleLoc.y, simpleLoc.z)
+                                val loc = Location(world, simpleLoc.x, simpleLoc.y, simpleLoc.z)
                                 // 좌표 중복 검사
-                                shulkerBoxSpawnPoints.removeIf { it.spawnPoint == location }
+                                shulkerBoxSpawnPoints.removeIf { it.spawnPoint == loc }
                                 // ShulkerBoxSpawnPoints 객체 생성
-                                val shulkerSpawnPoint = ShulkerSpawnPoint(location)
-                                shulkerBoxSpawnPoints.add(shulkerSpawnPoint)
+                                try {
+                                    val shulkerSpawnPoint = ShulkerSpawnPoint(loc)
+                                    shulkerBoxSpawnPoints.add(shulkerSpawnPoint)
+                                } catch (ignored: Exception) {
+                                    SimplyLog.log(LogLevel.ERROR_NORMAL, plugin, "${dataFile.name} 파일 로드하며 ShulkerSpawnPoint 객체를 생성하는 중, ${loc.x}, ${loc.y}, ${loc.z} 에 블럭 ${loc.block.type} 이 발견되어 Exception 실행됨")
+                                }
                             }
                         }
                     }
