@@ -80,6 +80,11 @@ object GlowNearbyShulker: Listener {
 
     @EventHandler
     fun onQuit(e: PlayerQuitEvent) {
+        currentShulkerGlowMap[e.player]?.forEach {
+            if (!it.isDead) {
+                GlowAPI.setGlowing(it, false, e.player)
+            }
+        }
         currentShulkerGlowMap.remove(e.player)
     }
 }
