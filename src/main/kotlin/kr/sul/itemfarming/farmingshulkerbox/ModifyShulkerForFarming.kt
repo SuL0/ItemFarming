@@ -43,6 +43,7 @@ object ModifyShulkerForFarming : Listener {
         if (e.isCancelled) return
         if (e.entity is Shulker) {
             e.drops.clear()
+            e.droppedExp = 0
             e.entity.location.world.dropItem(e.entity.location, ItemStack(Material.SHULKER_SHELL).nameIB("&7[ &f상자 껍데기 &7]"))
         }
     }
