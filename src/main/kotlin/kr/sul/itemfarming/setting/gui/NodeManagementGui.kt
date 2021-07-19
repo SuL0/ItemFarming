@@ -53,9 +53,11 @@ class NodeManagementGui(private val p: Player,
     }
 
     private fun GuiWithRunnableButtons.Builder.addEditChance(): GuiWithRunnableButtons.Builder {
-        addRunnableButton(22, ItemStack(Material.ENCHANTED_BOOK)
+        val item = ItemStack(Material.ENCHANTED_BOOK)
             .nameIB("§6§l확률 변경")
-            .loreIB(" §7└ ${internalNodeObjToEdit.name} 의 확률 §f${internalNodeObjToEdit.chance}% §7을(를) 변경합니다.", 2)) {
+            .loreIB(" §7└ ${internalNodeObjToEdit.name} 의 확률 §f${internalNodeObjToEdit.chance}% §7을(를) 변경합니다.", 2)
+
+        addRunnableButton(22, item) {
             AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 확률 입력.", { s_input ->
                 try {
                     val input = s_input.toDouble()
@@ -76,10 +78,11 @@ class NodeManagementGui(private val p: Player,
     }
 
     private fun GuiWithRunnableButtons.Builder.addRename(): GuiWithRunnableButtons.Builder {
-        addRunnableButton(18, ItemStack(Material.BOOK_AND_QUILL)
+        val item = ItemStack(Material.BOOK_AND_QUILL)
             .nameIB("§6§l이름 변경")
-            .loreIB(" §7└ 이름 §f${internalNodeObjToEdit.name} §7을(를) 변경합니다.", 2)) {
+            .loreIB(" §7└ 이름 §f${internalNodeObjToEdit.name} §7을(를) 변경합니다.", 2)
 
+        addRunnableButton(18, item) {
             AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 이름 입력.", { input ->
                 internalNodeObjToEdit.name = input
                 p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7의 이름을 §f'${internalNodeObjToEdit.name}' -> '$input' §7로 변경했습니다.")
@@ -95,10 +98,11 @@ class NodeManagementGui(private val p: Player,
     }
 
     private fun GuiWithRunnableButtons.Builder.addDelete(): GuiWithRunnableButtons.Builder {
-        addRunnableButton(26, ItemStack(Material.RECORD_4)
+        val item = ItemStack(Material.RECORD_4)
             .nameIB("§4§l[!] §c해당 ${nodeTag.str} 삭제")
-            .loreIB(" §7└ ${nodeTag.getCombined()} §f${internalNodeObjToEdit.name} §7을(를) 삭제합니다.", 2)) {
+            .loreIB(" §7└ ${nodeTag.getCombined()} §f${internalNodeObjToEdit.name} §7을(를) 삭제합니다.", 2)
 
+        addRunnableButton(26, item) {
             // 2차 확인 (다만, 삭제가 잦은 LeafItem의 경우는 SHIFT+왼클 으로 바로 삭제할 수 있게끔)
             ConfirmGuiModerator.open(p, "§f정말 ${nodeTag.getCombined()} §f${internalNodeObjToEdit.name} §f을(를) 삭제합니까?",
                 listOf(" §7└ 해당 ${nodeTag.getCombined()} §7는 §e${childNodeSize}개§7의 하위 노드를 가지고 있습니다."), {
@@ -116,9 +120,11 @@ class NodeManagementGui(private val p: Player,
     }
 
     private fun GuiWithRunnableButtons.Builder.addBackToPreviousGui(): GuiWithRunnableButtons.Builder {
-        addRunnableButton(6, ItemStack(Material.CHORUS_FRUIT)
+        val item = ItemStack(Material.CHORUS_FRUIT)
             .nameIB("§6§l뒤로가기")
-            .loreIB(" §7└ ${nodeTag.str} List GUI로 되돌아갑니다.", 2)) {
+            .loreIB(" §7└ ${nodeTag.str} List GUI로 되돌아갑니다.", 2)
+
+        addRunnableButton(6, item) {
             backToPreviousGuiMethod.run()
         }
         return this

@@ -27,7 +27,7 @@ object AnvilGuiModerator {
     fun open(p: Player, text: String, runAfterGettingInput: Consumer<String>, onClose: Runnable, itemInLeft: ItemStack? = null) {
         if (p.gameMode != GameMode.CREATIVE) {
             p.gameMode = GameMode.CREATIVE
-            p.sendMessage("§6§lIF: §7Anvil 사용을 위해 Creative로 변경했습니다.")
+            p.sendMessage("§6§lIF: §7Anvil GUI 사용을 위해 Creative로 변경했습니다.")
         }
         val anvilGuiBuilder = AnvilGUI.Builder().run {
             if (itemInLeft == null) {
