@@ -159,7 +159,7 @@ object TreeDataMgr {
 
     private fun backUp(asAsync: Boolean) {
         SimplyBackUp.backUpFile(null, dataFile, backUpFolder, false, asAsync)
-        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync)  // 오래된 백업 파일 정리  TODO 15일 보존 되는거 맞나?
+        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync)  // 오래된 백업 파일 정리
     }
 
     private fun createFilesIfNotExist() {

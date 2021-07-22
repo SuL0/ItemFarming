@@ -1,5 +1,6 @@
 package kr.sul.itemfarming
 
+import kr.sul.itemfarming.chest.PlaceChestAutomatically
 import kr.sul.itemfarming.farmingshulkerbox.GlowNearbyShulker
 import kr.sul.itemfarming.farmingshulkerbox.ModifyShulkerForFarming
 import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
@@ -7,6 +8,7 @@ import kr.sul.itemfarming.setting.Command
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
+import kr.sul.servercore.util.ObjectInitializer
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
@@ -50,6 +52,7 @@ class Main : JavaPlugin(), Listener {
         Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
         Bukkit.getPluginManager().registerEvents(ModifyShulkerForFarming, this)
         Bukkit.getPluginManager().registerEvents(GlowNearbyShulker, this)
+        ObjectInitializer.forceInit(PlaceChestAutomatically::class.java)
     }
 
 
