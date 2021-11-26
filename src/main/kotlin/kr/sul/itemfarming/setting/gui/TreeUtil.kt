@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui
 
-import kr.sul.itemfarming.Main
+import kr.sul.Main
 import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeItemAbstract
 import kr.sul.itemfarming.setting.gui.node.NodeRank

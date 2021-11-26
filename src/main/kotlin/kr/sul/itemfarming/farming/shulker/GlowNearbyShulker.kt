@@ -1,7 +1,7 @@
-package kr.sul.itemfarming.farmingshulkerbox
+package kr.sul.itemfarming.farming.shulker
 
-import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.data.PlacingShulkerBoxSaver
+import kr.sul.Main.Companion.plugin
+import kr.sul.itemfarming.farming.shulker.data.PlacingShulkerBoxSaver
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.entity.Shulker
@@ -18,6 +18,7 @@ object GlowNearbyShulker: Listener {
     private val currentShulkerGlowMap = hashMapOf<Player, ArrayList<Shulker>>()
 
     init {
+        // TODO Timings에서 엄청난 렉을 유발하는데?  https://timings.aikar.co/?id=513fb818a29d404d9d5fdf818564379f
         Bukkit.getScheduler().runTaskTimer(plugin, {
             // 거리 <= DISTANCE 조건에 부합하지 않는 글로우된 셜커는 글로우 삭제
             currentShulkerGlowMap.forEach { (p, shulkerList) ->
@@ -33,7 +34,8 @@ object GlowNearbyShulker: Listener {
             for (shulker in PlacingShulkerBoxSaver.shulkerBoxSpawnPoints) {
                 for (p in Bukkit.getOnlinePlayers().filter { it.isOp }) {
                     if (shulker.spawnPoint.world == p.world
-                            && shulker.spawnPoint.distance(p.location) <= DISTANCE) {
+                            && shulker.spawnPoint.distance(p.location) <= DISTANCE
+                    ) {
                         if (shulker.spawnedShulkerMob != null) {  // 셜커 몹 -
                             glowShulker(p, shulker.spawnedShulkerMob!!, GlowAPI.Color.GOLD)
                         }
@@ -61,7 +63,7 @@ object GlowNearbyShulker: Listener {
 
             // 야생의 비정상 셜커 (RED)
             for (p in Bukkit.getOnlinePlayers().filter { it.isOp }) {
-                for (nearbyShulker in p.getNearbyEntities(DISTANCE-1.0, DISTANCE-1.0, DISTANCE-1.0).filterIsInstance<Shulker>()) {
+                for (nearbyShulker in p.getNearbyEntities(DISTANCE -1.0, DISTANCE -1.0, DISTANCE -1.0).filterIsInstance<Shulker>()) {
                     if (currentShulkerGlowMap[p]?.contains(nearbyShulker) == false) {
                         glowShulker(p, nearbyShulker, GlowAPI.Color.DARK_RED)
                     }

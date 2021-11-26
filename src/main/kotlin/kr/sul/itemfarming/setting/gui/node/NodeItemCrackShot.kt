@@ -1,7 +1,7 @@
 package kr.sul.itemfarming.setting.gui.node
 
 import com.shampaggon.crackshot2.CSMinion
-import kr.sul.itemfarming.Main
+import kr.sul.Main
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit

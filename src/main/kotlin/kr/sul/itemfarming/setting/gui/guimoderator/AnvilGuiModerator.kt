@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui.guimoderator
 
-import kr.sul.itemfarming.Main
+import kr.sul.Main
 import kr.sul.servercore.util.ItemBuilder.loreIB
 import kr.sul.servercore.util.ItemBuilder.nameIB
 import net.wesjd.anvilgui.AnvilGUI

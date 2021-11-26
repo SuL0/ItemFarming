@@ -1,7 +1,8 @@
-package kr.sul.itemfarming.farmingshulkerbox
+package kr.sul.itemfarming.farming.shulker
 
 import kr.sul.itemfarming.ConfigLoader
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
+import kr.sul.itemfarming.farming.LootGUI
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit
@@ -155,7 +156,7 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
             e.clickedBlock.world.spawnParticle(Particle.CLOUD, e.clickedBlock.location, 5, 0.0, 0.0, 0.0, 0.1)
 
             // ShulkerLootInv 열어주기
-            ShulkerLootInv(e.player, e.clickedBlock.location).open()
+            LootGUI(e.player, e.clickedBlock.location, true).open()
         }
     }
 

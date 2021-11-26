@@ -1,18 +1,15 @@
-package kr.sul.itemfarming.farmingshulkerbox
+package kr.sul.itemfarming.farming
 
 import kr.sul.itemfarming.ConfigLoader
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeRank
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
-import kr.sul.servercore.util.ItemBuilder.durabilityIB
-import kr.sul.servercore.util.ItemBuilder.nameIB
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -24,20 +21,25 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import kotlin.random.Random
 
-class ShulkerLootInv(private val p: Player, private val loc: Location): Listener {
+class LootGUI(private val p: Player, private val loc: Location, private val isShulker: Boolean): Listener {
     private val lootInv: Inventory
 
     init {
         Bukkit.getPluginManager().registerEvents(this, plugin)
 
-        val thisWorldConfigData = ConfigLoader.configDataList[loc.world]!!   // 해당 셜커의 월드에 해당하는 ConfigData를 불러옴
+        val thisWorldConfigData = ConfigLoader.configDataList[loc.world]!!   // 해당 상자 또는 셜커의 월드에 해당하는 ConfigData를 불러옴
 
         if (TreeDataMgr.rootNodeList.size >= 1) {
             // GUI에 아이템 채우기
             val rank = pickAtRandom(TreeDataMgr.rootNodeList)
-            p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 셜커 상자를 발견했습니다.")
-            lootInv = Bukkit.createInventory(null, 27, "${rank.name} §0등급 셜커 소지품")
-            decorateShulkerGuiBasedOnRank(rank, lootInv)
+            if (isShulker) {
+                p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 셜커 상자를 발견했습니다.")
+                lootInv = Bukkit.createInventory(null, 27, "${rank.name} §0등급 셜커 소지품")
+            } else {
+                p.sendMessage("§6§lIF: §7당신은 §f${rank.name} §7등급 상자를 발견했습니다.")
+                lootInv = Bukkit.createInventory(null, 27, "${rank.name} §0등급 소지품")
+            }
+            decorateGuiBasedOnRank(rank, lootInv)
 
             val categoryDuplicatePreventer = hashSetOf<NodeCategory>()
             // 카테고리 - 아이템
@@ -61,7 +63,7 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
                 }
             }
         } else {
-            lootInv = Bukkit.createInventory(null, 27, "§4§lError in FarmingShulker")
+            lootInv = Bukkit.createInventory(null, 27, "§4§lLootGUI 오류 발생")
         }
     }
     fun open() {
@@ -70,7 +72,7 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
 
 
     @EventHandler(priority = EventPriority.HIGH)
-    fun onCloseShulkerLootInv(e: InventoryCloseEvent) {
+    fun onCloseLootInv(e: InventoryCloseEvent) {
         if (e.inventory == lootInv) {
             for (loopItem in e.inventory.contents.filterNotNull()) {  // GUI에 남은 템 바닥에 드랍
                 if (loopItem.itemMeta?.displayName == DECORATE_ITEM_NAME) {  // 장식용 아이템은 제외
@@ -95,7 +97,7 @@ class ShulkerLootInv(private val p: Player, private val loc: Location): Listener
 
     companion object {
         const val DECORATE_ITEM_NAME = "§X§X§X"
-        private fun decorateShulkerGuiBasedOnRank(rank: NodeRank, inv: Inventory) {
+        private fun decorateGuiBasedOnRank(rank: NodeRank, inv: Inventory) {
 //            val decorateItem = when (rank.name) {
 //                "고급" -> ItemStack(Material.DIAMOND_PICKAXE).durabilityIB(1527).nameIB(DECORATE_ITEM_NAME)
 //                "희귀" -> ItemStack(Material.DIAMOND_PICKAXE).durabilityIB(1526).nameIB(DECORATE_ITEM_NAME)

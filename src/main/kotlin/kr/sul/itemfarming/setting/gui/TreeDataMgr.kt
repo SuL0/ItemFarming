@@ -1,7 +1,7 @@
 package kr.sul.itemfarming.setting.gui
 
 import com.google.gson.GsonBuilder
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeItemCrackShot
 import kr.sul.itemfarming.setting.gui.node.NodeItemNormal

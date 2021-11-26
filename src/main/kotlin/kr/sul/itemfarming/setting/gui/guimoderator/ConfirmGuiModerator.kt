@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui.guimoderator
 
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.servercore.usefulgui.ConfirmGui
 import kr.sul.servercore.util.ItemBuilder.loreIB
 import kr.sul.servercore.util.ItemBuilder.nameIB

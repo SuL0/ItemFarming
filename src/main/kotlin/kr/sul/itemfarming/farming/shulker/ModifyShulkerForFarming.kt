@@ -1,6 +1,6 @@
-package kr.sul.itemfarming.farmingshulkerbox
+package kr.sul.itemfarming.farming.shulker
 
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.servercore.util.ItemBuilder.nameIB
 import org.bukkit.Bukkit
 import org.bukkit.Material

@@ -1,6 +1,6 @@
 package kr.sul.itemfarming
 
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit

@@ -1,10 +1,10 @@
-package kr.sul.itemfarming.farmingshulkerbox.data
+package kr.sul.itemfarming.farming.shulker.data
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import kr.sul.itemfarming.ConfigLoader
-import kr.sul.itemfarming.Main.Companion.plugin
-import kr.sul.itemfarming.farmingshulkerbox.ShulkerSpawnPoint
+import kr.sul.Main.Companion.plugin
+import kr.sul.itemfarming.farming.shulker.ShulkerSpawnPoint
 import kr.sul.servercore.file.CustomFileUtil
 import kr.sul.servercore.file.SimplyBackUp
 import kr.sul.servercore.file.simplylog.LogLevel

@@ -1,6 +1,6 @@
 package kr.sul.itemfarming.setting.gui
 
-import kr.sul.itemfarming.Main.Companion.plugin
+import kr.sul.Main.Companion.plugin
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
 import kr.sul.itemfarming.setting.gui.node.NodeCategory
 import kr.sul.itemfarming.setting.gui.node.NodeRank

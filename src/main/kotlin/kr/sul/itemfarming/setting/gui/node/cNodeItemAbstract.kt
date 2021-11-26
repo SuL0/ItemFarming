@@ -2,7 +2,7 @@ package kr.sul.itemfarming.setting.gui.node
 
 import com.shampaggon.crackshot2.addition.WeaponNbtParentNodeMgr
 import com.shampaggon.crackshot2.addition.util.CrackShotAdditionAPI
-import kr.sul.itemfarming.Main
+import kr.sul.Main
 import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.itemfarming.setting.gui.TreeUtil
 import kr.sul.itemfarming.setting.gui.guimoderator.AnvilGuiModerator
