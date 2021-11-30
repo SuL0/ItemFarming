@@ -7,7 +7,7 @@ import kr.sul.itemfarming.setting.gui.node.NodeItemCrackShot
 import kr.sul.itemfarming.setting.gui.node.NodeItemNormal
 import kr.sul.itemfarming.setting.gui.node.NodeRank
 import kr.sul.servercore.file.CustomFileUtil
-import kr.sul.servercore.file.SimplyBackUp
+import kr.sul.servercore.file.SimplyBackup
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.apache.commons.io.FileUtils
@@ -27,7 +27,7 @@ import java.io.*
 object TreeDataMgr {
     val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
     private val dataFile = File("${plugin.dataFolder}/settings_data.json")
-    private val backUpFolder = File("${plugin.dataFolder}/backup")
+    private val backupFolder = File("${plugin.dataFolder}/backup")
 
     private const val NAME_KEY = "name"
     private const val CHANCE_KEY = "chance"
@@ -38,7 +38,7 @@ object TreeDataMgr {
     private const val CS_PARENT_NODE_KEY = "itemStack"
 
     fun saveAll(asAsync: Boolean) {
-        backUp(asAsync)
+        backup(asAsync)
         createFilesIfNotExist()
 
         // rootNodeList Json화 시키기
@@ -149,7 +149,7 @@ object TreeDataMgr {
         } catch (e: Exception) {  // try에서 if로 체크 생까고 어떠한 문제라도 생기면 걍 catch로 보내서 처리해
             e.printStackTrace()
             SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "ItemFarming TreeDataMgr에서 데이터를 불러오는데 실패")
-            backUp(false)
+            backup(false)
         }
     }
 
@@ -157,9 +157,9 @@ object TreeDataMgr {
 
 
 
-    private fun backUp(asAsync: Boolean) {
-        SimplyBackUp.backUpFile(null, dataFile, backUpFolder, false, asAsync)
-        CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync)  // 오래된 백업 파일 정리
+    private fun backup(asAsync: Boolean) {
+        SimplyBackup.backupFile(null, dataFile, backupFolder, false, asAsync)
+        CustomFileUtil.deleteFilesOlderThanNdays(15, backupFolder, 10, asAsync)  // 오래된 백업 파일 정리
     }
 
     private fun createFilesIfNotExist() {

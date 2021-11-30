@@ -6,7 +6,7 @@ import kr.sul.itemfarming.ConfigLoader
 import kr.sul.Main.Companion.plugin
 import kr.sul.itemfarming.farming.shulker.ShulkerSpawnPoint
 import kr.sul.servercore.file.CustomFileUtil
-import kr.sul.servercore.file.SimplyBackUp
+import kr.sul.servercore.file.SimplyBackup
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.apache.commons.io.FileUtils
@@ -123,7 +123,7 @@ object PlacingShulkerBoxSaver {
     // shulkerbox_location_list 데이터 관리
     object DataMgr {
         private val dataFile = File("${plugin.dataFolder}/shulkerbox_location_list.json")
-        private val backUpFolder = File("${plugin.dataFolder}/backup")
+        private val backupFolder = File("${plugin.dataFolder}/backup")
 
 
         fun saveAll() {
@@ -155,8 +155,8 @@ object PlacingShulkerBoxSaver {
             }
 
             // 백업
-            SimplyBackUp.backUpFile(null, dataFile, backUpFolder, false, asAsync = false)
-            CustomFileUtil.deleteFilesOlderThanNdays(15, backUpFolder, 10, asAsync = false)
+            SimplyBackup.backupFile(null, dataFile, backupFolder, false, asAsync = false)
+            CustomFileUtil.deleteFilesOlderThanNdays(15, backupFolder, 10, asAsync = false)
         }
 
         fun loadAll() {
@@ -178,7 +178,7 @@ object PlacingShulkerBoxSaver {
                         val world: World? = Bukkit.getWorld(worldName)
                         // 월드가 존재하지 않아 관련 데이터가 로딩되지 못한 경우
                         if (world == null) {
-                            SimplyBackUp.backUpFile("${dataFile.nameWithoutExtension}-오류 전 백업.${dataFile.extension}", dataFile, backUpFolder, false, asAsync = true)
+                            SimplyBackup.backupFile("${dataFile.nameWithoutExtension}-오류 전 백업.${dataFile.extension}", dataFile, backupFolder, false, asAsync = true)
                             SimplyLog.log(LogLevel.ERROR_CRITICAL, plugin, "${dataFile.name} 파일 중 world $worldName 을 불러올 수 없음")
                         }
                         else {
