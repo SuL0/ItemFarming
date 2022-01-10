@@ -102,7 +102,7 @@ abstract class InternalNodeGui<T: InternalNode> {
     // Node 추가 버튼 눌렀을 때. Anvil[이름] -> Anvil[확률] 띄워서 입력받고, 결과물로 Node Obj(Only InternalNode) 생성시키기
     private fun createCurrentNodeObjWithGui(p: Player) {
         // !: 1차 Anvil GUI [Node 이름 입력]
-        AnvilGuiModerator.open(p, "1. $NODE_TYPE_NAME 이름 입력", { inputName ->
+        AnvilGuiModerator.open(p, "1. $NODE_TYPE_NAME 이름 입력: ", { inputName ->
             // Node 새로 생성
 
             // 이름 중복 체크
@@ -114,7 +114,7 @@ abstract class InternalNodeGui<T: InternalNode> {
             }
 
             // !: 2차 Anvil GUI [Node 확률 입력]
-            AnvilGuiModerator.open(p, "2. $NODE_TYPE_NAME 확률 입력", { s_inputChance ->
+            AnvilGuiModerator.open(p, "2. $NODE_TYPE_NAME 확률 입력: ", { s_inputChance ->
                 try {
                     val inputChance = s_inputChance.toDouble()
                     p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §f$inputName : $inputChance% §7를 새로 생성했습니다.")

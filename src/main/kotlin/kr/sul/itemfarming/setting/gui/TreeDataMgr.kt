@@ -25,7 +25,7 @@ import java.io.*
 
 // TODO: 데이터 Excel로 변환 추가.  (그것으로 확률 수정까지 가능하게)
 object TreeDataMgr {
-    val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List
+    val rootNodeList = arrayListOf<NodeRank>()  // = 최상위 List (랭크를 가짐)
     private val dataFile = File("${plugin.dataFolder}/settings_data.json")
     private val backupFolder = File("${plugin.dataFolder}/backup")
 
@@ -96,6 +96,7 @@ object TreeDataMgr {
         val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
         val finalJson = gsonBuilder.toJson(rootJsonArray)
 
+        // Writer은 기존의 파일 내용을 모두 무로 만든 후, 파일을 처음부터 새로 쓰기 시작함. 따라서 Writer 생성하고 바로 close()할 시 파일의 모든 내용을 지우게 됨.
 //        val bWriter = BufferedWriter(FileWriter(dataFile))
         val bWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(dataFile), "EUC-KR"))
         try {

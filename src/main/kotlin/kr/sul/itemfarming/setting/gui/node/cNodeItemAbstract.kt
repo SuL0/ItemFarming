@@ -186,7 +186,7 @@ object NodeItemListMgr: Listener {
                 // 아랫 인벤에서 Shift+Left Click한 아이템을 NodeItem List에 추가하기 (Anvil에서 확률은 추가로 받고)
                 if (e.clickedInventory != e.inventory && e.currentItem != null && e.isShiftClick && e.isLeftClick) {
                     val itemToAdd = e.currentItem
-                    AnvilGuiModerator.open(p, "1. $NODE_TYPE_NAME 확률 입력", { s_inputChance ->
+                    AnvilGuiModerator.open(p, "1. $NODE_TYPE_NAME 확률 입력: ", { s_inputChance ->
                         try {
                             val inputChance = s_inputChance.toDouble()
                             p.sendMessage("§6§lIF: $NODE_TYPE_COLOR[$NODE_TYPE_NAME] §f${itemToAdd?.itemMeta?.displayName ?: itemToAdd.type.name} : $inputChance% §7를 새로 생성했습니다.")
@@ -236,7 +236,7 @@ object NodeItemListMgr: Listener {
                     // NodeItem 아이템 우클릭 시 확률 변경
                     else if (e.isRightClick && NodeItemUuidAPI.hasUniqueID(e.currentItem)) {
                         val clickedNode = Util.getObjFromGuiItem(e.currentItem, getViewingGuiCurrentNodeList(p))
-                        AnvilGuiModerator.open(p, "Edit) $NODE_TYPE_NAME 확률 입력.", { s_input ->
+                        AnvilGuiModerator.open(p, "Edit) $NODE_TYPE_NAME 확률 입력: ", { s_input ->
                             try {
                                 val input = s_input.toDouble()
                                 p.sendMessage("§6§lIF: ${NODE_TYPE_COLOR}[${NODE_TYPE_NAME}] §7${clickedNode.displayName} §7의 확률을 §f$s_input% §7로 변경했습니다.")

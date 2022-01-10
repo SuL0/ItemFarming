@@ -16,7 +16,9 @@ object AnvilGuiModerator {
     private val itemInRight = run {
         val item = ItemStack(Material.ENCHANTED_BOOK)
             .nameIB("§6§lTIP: ")
-            .loreIB(" §7└ §f텍스트 창 클릭 §7-> §fCtrl+A §7-> §f입력", 2)
+            .loreIB(" §7└ §f§l1. §f텍스트 창 클릭 §7-> §fCtrl+A §7-> §f입력", 2)
+            .loreIB(" §7└ §f§l2. §f기본 텍스트를 Ctrl+A를 통해 삭제하지 않고, 그대로 둔 채로 이어 입력", 2)
+            .loreIB(" §7└ §7(e.g. \"1. (이름) 확률 입력: 50\" -> 실제 적용 = 50", 2)
         val meta: EnchantmentStorageMeta = item.itemMeta as EnchantmentStorageMeta
         meta.addStoredEnchant(Enchantment.LOOT_BONUS_BLOCKS, 1, true)
         item.itemMeta = meta
@@ -38,7 +40,11 @@ object AnvilGuiModerator {
             itemRight(itemInRight)
             text(text)
             onComplete { _, string ->
-                runAfterGettingInput.accept(string)
+                if (string.startsWith(text)) {
+                    runAfterGettingInput.accept(string.replace(text, ""))
+                } else {
+                    runAfterGettingInput.accept(string)
+                }
                 return@onComplete AnvilGUI.Response.close()
             }
             onClose {

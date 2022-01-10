@@ -58,7 +58,7 @@ class NodeManagementGui(private val p: Player,
             .loreIB(" §7└ ${internalNodeObjToEdit.name} 의 확률 §f${internalNodeObjToEdit.chance}% §7을(를) 변경합니다.", 2)
 
         addRunnableButton(22, item) {
-            AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 확률 입력.", { s_input ->
+            AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 확률 입력: ", { s_input ->
                 try {
                     val input = s_input.toDouble()
                     internalNodeObjToEdit.chance = input
@@ -83,7 +83,7 @@ class NodeManagementGui(private val p: Player,
             .loreIB(" §7└ 이름 §f${internalNodeObjToEdit.name} §7을(를) 변경합니다.", 2)
 
         addRunnableButton(18, item) {
-            AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 이름 입력.", { input ->
+            AnvilGuiModerator.open(p, "Edit) ${nodeTag.str} 이름 입력: ", { input ->
                 internalNodeObjToEdit.name = input
                 p.sendMessage("§6§lIF: ${nodeTag.getCombined()} §7의 이름을 §f'${internalNodeObjToEdit.name}' -> '$input' §7로 변경했습니다.")
                 TreeDataMgr.DataSaveTaskRegister.tryToRegisterDataSaveTask()  // saveData Task 등록
