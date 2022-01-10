@@ -1,16 +1,7 @@
-package kr.sul.itemfarming.farming.shulker
-
-import kr.sul.Main.Companion.plugin
-import kr.sul.itemfarming.farming.shulker.data.PlacingShulkerBoxSaver
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.entity.Shulker
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerQuitEvent
-import org.inventivetalent.glow.GlowAPI
+package kr.sul.itemfarming.farming.chest_notuse.shulker
 
 
+/*
 object GlowNearbyShulker: Listener {
     private const val TERM = 3*20L
     private const val DISTANCE = 100
@@ -89,4 +80,4 @@ object GlowNearbyShulker: Listener {
         }
         currentShulkerGlowMap.remove(e.player)
     }
-}
+}*/

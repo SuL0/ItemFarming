@@ -1,14 +1,5 @@
-package kr.sul.itemfarming.farming.chest
+package kr.sul.itemfarming.farming.chest_notuse
 
-import kr.sul.itemfarming.farming.LootGUI
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.block.Skull
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.player.PlayerInteractEvent
 /*
 object ChestClickListener: Listener {
     @EventHandler(priority = EventPriority.HIGH)

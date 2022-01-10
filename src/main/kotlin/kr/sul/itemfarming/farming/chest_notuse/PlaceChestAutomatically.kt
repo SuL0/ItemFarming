@@ -1,4 +1,4 @@
-package kr.sul.itemfarming.farming.chest
+package kr.sul.itemfarming.farming.chest_notuse
 
 /*
 object PlaceChestAutomatically {

@@ -1,35 +1,8 @@
-package kr.sul.itemfarming.farming.shulker.data
+package kr.sul.itemfarming.farming.chest_notuse.shulker.data
 
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-import kr.sul.itemfarming.ConfigLoader
-import kr.sul.Main.Companion.plugin
-import kr.sul.itemfarming.farming.shulker.ShulkerSpawnPoint
-import kr.sul.servercore.file.CustomFileUtil
-import kr.sul.servercore.file.SimplyBackup
-import kr.sul.servercore.file.simplylog.LogLevel
-import kr.sul.servercore.file.simplylog.SimplyLog
-import org.apache.commons.io.FileUtils
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.World
-import org.bukkit.block.ShulkerBox
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+//import kr.sul.itemfarming.ConfigLoader
 
+/*
 object PlacingShulkerBoxSaver {
     val shulkerBoxSpawnPoints = arrayListOf<ShulkerSpawnPoint>()  // 콘피그 저장 형태랑은 다름
 
@@ -224,4 +197,4 @@ object PlacingShulkerBoxSaver {
             }
         }
     }
-}
+}*/

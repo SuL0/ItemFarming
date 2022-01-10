@@ -1,17 +1,6 @@
-package kr.sul.itemfarming.farming.shulker
+package kr.sul.itemfarming.farming.chest_notuse.shulker
 
-import kr.sul.Main.Companion.plugin
-import kr.sul.servercore.util.ItemBuilder.nameIB
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.entity.*
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.entity.*
-import org.bukkit.inventory.ItemStack
-import org.bukkit.potion.PotionEffectType
-
+/*
 object ModifyShulkerForFarming : Listener {
     @EventHandler(priority = EventPriority.LOW)
     fun onEntityTeleport(e: EntityTeleportEvent) {
@@ -47,4 +36,4 @@ object ModifyShulkerForFarming : Listener {
             e.entity.location.world.dropItem(e.entity.location, ItemStack(Material.SHULKER_SHELL).nameIB("&7[ &f상자 껍데기 &7]"))
         }
     }
-}
+}*/

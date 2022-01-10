@@ -1,12 +1,6 @@
-package kr.sul.itemfarming.farming.chest
+package kr.sul.itemfarming.farming.chest_notuse
 
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.util.Vector
-import kotlin.random.Random
-
+/*
 object AppropriateLocFinder {
     private val random = Random
     private const val AIR_STACK_CUTLINE = 30
@@ -63,4 +57,4 @@ object AppropriateLocFinder {
         }
         return null
     }
-}
+}*/

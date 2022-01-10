@@ -1,27 +1,8 @@
-package kr.sul.itemfarming.farming.shulker
+package kr.sul.itemfarming.farming.chest_notuse.shulker
 
-import kr.sul.itemfarming.ConfigLoader
-import kr.sul.Main.Companion.plugin
-import kr.sul.itemfarming.farming.LootGUI
-import kr.sul.servercore.file.simplylog.LogLevel
-import kr.sul.servercore.file.simplylog.SimplyLog
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.block.Block
-import org.bukkit.block.ShulkerBox
-import org.bukkit.entity.*
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityDeathEvent
-import org.bukkit.event.entity.ProjectileHitEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.world.ChunkUnloadEvent
+//import kr.sul.itemfarming.ConfigLoader
 
+/*
 class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
     private val enabled = ConfigLoader.configDataList.contains(spawnPoint.world)  // Config에서 활성화한 월드에 해당하는가
     var spawnedShulkerMob: Shulker? = null
@@ -169,4 +150,4 @@ class ShulkerSpawnPoint(val spawnPoint: Location): Listener {
             e.isCancelled = true
         }
     }
-}
+}*/
