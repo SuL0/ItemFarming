@@ -1,0 +1,10 @@
+#상자:
+#    material: "chest"
+#    item_chance_file: "chest_item_chance.json"   # (. = ItemFarming/item_chance)
+#    locations_file: "chest_location.json"        # (. = ItemFarming/location_pool)
+#    amount: auto   # auto, (개수), (비중%)          auto: 모든 locations에 스폰함,   (개수): locations 중 (개수) 만큼만 스폰함,    (비중%): locations 중에 (비중%) 만큼 파밍수단을 스폰함
+#    fill_items_cooldown_term: 10*60  # 초
+#    message_when_it_opened: "상자를 발견했습니다"
+#    sound_when_it_opened: "BLOCK_CHEST_OPEN"
+#    make_item_container_despawned_when_it_opened: true
+#    make_item_container_move_when_it_opened: true

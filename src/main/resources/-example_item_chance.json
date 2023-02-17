@@ -1,0 +1,54 @@
+{
+	"name": "NodeAtTheTop",
+	"chance": 100,
+	"children": [
+		{
+			"name": "카테고리1",
+			"chance": 30,
+			"children": [
+				{
+					"name": "IRON_SWORD",
+					"chance": 100,
+					"item": "(ITEMSTACK)it_should_be_base64_encoded_data",
+					"amount": 1
+				}
+			]
+		},
+		{
+			"name": "카테고리2",
+			"chance": 20,
+			"children": [
+				{
+					"name": "카테고리A",
+					"chance": 50,
+					"children": [
+						{
+							"name": "AK-47",
+							"chance": 100,
+							"item": "(CRACKSHOT)AK47",
+							"amount": 1
+						}
+					]
+				},
+				{
+					"name": "카테고리B",
+					"chance": 50,
+					"children": [
+						{
+							"name": "MP5",
+							"chance": 30,
+							"item": "(CRACKSHOT)MP5",
+							"amount": 2
+						},
+						{
+							"name": "Vector",
+							"chance": 70,
+							"item": "(CRACKSHOT)Vector",
+							"amount": 1
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.8.0"
     id("kr.entree.spigradle") version "2.2.3"
 }
 
@@ -7,27 +7,29 @@ group = "kr.sul"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.dmulloy2.net/nexus/repository/public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://jitpack.io/")
-    mavenLocal()
+    maven("https://nexus-repo.jordanosterberg.com/repository/maven-releases/")
 }
 
-val pluginStorage = "C:/MC-Development/PluginStorage"
-val nmsBukkitPath = "C:/MC-Development/마인즈서버/paper-1.12.2-R0.1-SNAPSHOT-shaded.jar"
-val copyPluginDestination = "C:/MC-Development/마인즈서버/plugins"
+val pluginDestination = "C:/MC-Development/마인즈서버/plugins"
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    compileOnly(files(nmsBukkitPath))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC")
+    compileOnly("com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("com.destroystokyo.paper:paper:1.12.2-R0.1-SNAPSHOT")
 
-    compileOnly("com.zaxxer", "HikariCP", "4.0.3")
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.6.0")
-
-    compileOnly(files("$pluginStorage/ServerCore_S.jar"))
-    compileOnly(files("$pluginStorage/CrackShot-2_S.jar"))
-    compileOnly(files("$pluginStorage/GlowAPI_v1.4.6_S.jar"))
+    compileOnly("com.zaxxer:HikariCP:4.0.3")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0")
+//    compileOnly("dev.jcsoftware:JScoreboards","2.1.2-RELEASE")
+//    implementation("org.yaml:snakeyaml:1.29")  snakeyaml은 bukkit의 lib에 포함되있을텐데?
+    compileOnly("kr.sul.servercore:bukkit:1.0-SNAPSHOT")
+    compileOnly("kr.sul:CrackShot-2:1.0-SNAPSHOT")
+    testImplementation("junit:junit:4.13.2")
 }
 
 spigot {
@@ -38,14 +40,16 @@ spigot {
     depends = listOf("ServerCore")
     softDepends = listOf("CrackShot-2")
     commands {
-        create("ItemFarming") {
-            permission = "op.op"
-        }
         create("itemdb") {
             permission = "op.op"
         }
     }
 }
+
+
+// NOTE synchronized 는 "객체 전체"에 Lock을 검 (-> saveData()로 락이 걸린 상황에서 loadData()는 수행될 수 없음. 또한 PlayerData가 가지고 있는 파라미터도 접근 못 함)
+// synchronized() 함수를 사용 시에는 블락할 단위를 설정할 수 있음. 자세한 내용은 아래 링크 참조
+// https://tourspace.tistory.com/54 - from AAClans
 
 val shade = configurations.create("shade")
 shade.extendsFrom(configurations.compileOnly.get())
@@ -55,28 +59,20 @@ tasks {
     compileKotlin.get().kotlinOptions.jvmTarget = "1.8"
     compileTestKotlin.get().kotlinOptions.jvmTarget = "1.8"
 
-//    val copyPlugin = register<Copy>("copyPlugin") {
-//        from(files("$pluginStorage/${project.name}_S.jar"))
-//        into(file("C:/Users/PHR/Desktop/SERVER2/plugins"))
+//    val copyPlugin_2 = register<Copy>("copyPlugin_2") {
+//        from(jar)
+//        into(file(copyPluginDestination))
 //    }
-    val copyPlugin_2 = register<Copy>("copyPlugin_2") {
-        from(files("$pluginStorage/${project.name}_S.jar"))
-        into(file(copyPluginDestination))
-    }
+//    val movePlugin = register("movePlugin") {
+//        doLast {
+//            ant.withGroovyBuilder {
+//                "move"("file" to jar.get().archiveFile.get(), "todir" to copyPluginDestination)
+//            }
+//        }
+//    }
 
     jar {
         archiveFileName.set("${project.name}_S.jar")
-        destinationDirectory.set(file(pluginStorage))
-
-//        from(
-//            shade.filter { it.name.startsWith("SimplixStorage") }  // compileOnly 파일 중에 anvilgui만!
-//                .map {
-//                    if (it.isDirectory)
-//                        it
-//                    else
-//                        zipTree(it)
-//                }
-//        )
-        finalizedBy(copyPlugin_2)
+        destinationDirectory.set(file(pluginDestination))  // clean 영향 안 받음. (영향받는 건 project.buildDir으로 설정했을 때)
     }
 }

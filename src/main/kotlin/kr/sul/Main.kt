@@ -1,20 +1,19 @@
 package kr.sul
 
-//import kr.sul.itemfarming.farming.chest.ChestClickListener
-//import kr.sul.itemfarming.farming.chest.PlaceChestAutomatically
-import kr.sul.itemfarming.ConfigLoader
-import kr.sul.itemfarming.farming.shulker.GlowNearbyShulker
-import kr.sul.itemfarming.farming.shulker.ModifyShulkerForFarming
-import kr.sul.itemfarming.farming.shulker.data.PlacingShulkerBoxSaver
+import kr.sul.itemdb.DataManager
+import kr.sul.itemdb.FileModifyingChecker
+import kr.sul.itemfarming.FarmingThingConfiguration
 import kr.sul.itemfarming.setting.Command
-import kr.sul.itemfarming.setting.gui.TreeDataMgr
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
+import kr.sul.servercore.util.ObjectInitializer
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
+import revxrsal.commands.bukkit.BukkitCommandHandler
 import java.util.logging.Level
+import kr.sul.itemdb.Command as ItemDbCommand
 
 
 // TODO: chance 100% 초과하지 않게, 또는 100% 초과하면 관리자가 수정하게끔
@@ -28,9 +27,8 @@ class Main : JavaPlugin(), Listener {
         registerClasses()
 
         // 데이터 로드
-        TreeDataMgr.loadAll() // 확률
-        ConfigLoader.loadConfig() // 콘피그
-        PlacingShulkerBoxSaver.DataMgr.loadAll() // 셜커 위치
+//        ConfigLoader.loadConfig() // 콘피그
+//        PlacingShulkerBoxSaver.DataMgr.loadAll() // 셜커 위치
 
         Bukkit.getScheduler().runTask(plugin) {
             if (Bukkit.getPluginManager().isPluginEnabled("CrackShot")
@@ -43,18 +41,15 @@ class Main : JavaPlugin(), Listener {
     }
 
     override fun onDisable() {
-        TreeDataMgr.saveAll(false)
-        PlacingShulkerBoxSaver.DataMgr.saveAll()
     }
 
     private fun registerClasses() {
-        getCommand("ItemFarming").executor = Command
+        getCommand("itemdb").executor = ItemDbCommand
         Bukkit.getPluginManager().registerEvents(this, this)
-        Bukkit.getPluginManager().registerEvents(PlacingShulkerBoxSaver.ListenUp, this)
-        Bukkit.getPluginManager().registerEvents(ModifyShulkerForFarming, this)
-        Bukkit.getPluginManager().registerEvents(GlowNearbyShulker, this)
-//        Bukkit.getPluginManager().registerEvents(ChestClickListener, this)
-//        ObjectInitializer.forceInit(PlaceChestAutomatically::class.java)
+        FarmingThingConfiguration.initializeFromConfiguration()
+        ObjectInitializer.forceInit(DataManager::class.java)
+        ObjectInitializer.forceInit(FileModifyingChecker::class.java)
+        BukkitCommandHandler.create(plugin).register(Command)
     }
 
 

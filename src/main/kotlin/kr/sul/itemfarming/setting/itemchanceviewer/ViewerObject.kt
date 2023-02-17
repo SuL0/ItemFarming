@@ -1,0 +1,69 @@
+package kr.sul.itemfarming.setting.itemchanceviewer
+
+import com.shampaggon.crackshot2.addition.WeaponNbtParentNodeMgr
+import com.shampaggon.crackshot2.addition.util.CrackShotAdditionAPI
+import kr.sul.itemfarming.setting.itemchance.ItemForNodeData
+import kr.sul.itemfarming.setting.itemchance.ItemNodeData
+import kr.sul.itemfarming.setting.itemchance.NodeData
+import kr.sul.servercore.util.ItemBuilder.clearLoreIB
+import kr.sul.servercore.util.ItemBuilder.loreIB
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
+
+open class ViewerObject(
+    private val parentNode: NodeData,
+    var node: NodeData
+) {
+    fun hasChildNode(): Boolean {
+        return node.childNodes != null
+    }
+
+    fun putItem(item: ItemStack?): Boolean {
+        val name = node.name
+        val chance = node.chance
+        if (node.childNodes != null) {
+            return false
+        }
+        if (item == null) {
+            replaceNode(NodeData(name, chance, null))
+        } else {
+            val itemForNodeData = if (CrackShotAdditionAPI.isValidCrackShotWeapon(item)) {
+                ItemForNodeData.CrackShotItem(WeaponNbtParentNodeMgr.getWeaponParentNodeFromNbt(item)!!, item.amount)
+            } else {
+                ItemForNodeData.NormalItem(item, item.amount)
+            }
+            replaceNode(ItemNodeData(name, chance, itemForNodeData))
+        }
+        return true
+    }
+    private fun replaceNode(nodeToReplace: NodeData) {
+        val index = parentNode.childNodes!!.indexOf(node)
+        parentNode.childNodes!!.remove(node)
+        parentNode.childNodes!!.add(index, nodeToReplace)
+        this.node = nodeToReplace
+    }
+
+    // render
+    fun render(): ItemStack {
+        val baseItem = if (node is ItemNodeData) {
+            (node as ItemNodeData).item.get()
+        } else if (node.childNodes != null) {
+            ItemStack(Material.WOOL, 1, 8) // grey colored wool
+        } else {
+            ItemStack(Material.WOOL, 1, 0)
+        }
+
+        val lore = baseItem.lore
+        baseItem.clearLoreIB()
+        baseItem.loreIB("§6Name: §f${node.name}")
+        baseItem.loreIB("§6Chance: §f${node.chance}")
+        if (node.childNodes != null) {
+            baseItem.loreIB("§c§lCLICK ⇒")
+        }
+        baseItem.loreIB("§f")
+        baseItem.loreIB("§f")
+        lore?.forEach { baseItem.loreIB(it) }
+        return baseItem
+    }
+}
