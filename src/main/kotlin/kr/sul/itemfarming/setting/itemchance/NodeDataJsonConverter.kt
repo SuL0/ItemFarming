@@ -1,8 +1,6 @@
 package kr.sul.itemfarming.setting.itemchance
 
 import kr.sul.servercore.util.Base64Serialization
-import kr.sul.servercore.util.KeepExceptionAlert
-import org.bukkit.Bukkit
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser

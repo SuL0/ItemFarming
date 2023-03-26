@@ -6,16 +6,16 @@ import kr.sul.servercore.util.MsgPrefix
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.DefaultFor
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.annotation.Optional
+import java.util.*
 
 @Command("itemfarming")
 object Command {
     @DefaultFor("itemfarming")
-    fun execute(p: Player, itemChanceFilePath: String) {
+    fun execute(p: Player, @Optional itemChanceFilePath: String?) {
         if (!p.isOp) return
         if (itemChanceFilePath == null) {
             p.sendMessage("     §6§l↓↓ ItemChance Path List ↓↓")

@@ -91,7 +91,7 @@ object FarmingThingConfiguration: Listener {
                 loadFarmingThing(YamlConfiguration.loadConfiguration(farmingThingData))
             } catch (e: Exception) {
                 // 데이터 불러오기 실패
-                KeepExceptionAlert.alert(e, "[ItemFarming] 데이터를 불러오는 데 실패했습니다 ${e.message} | ${e.cause}", 100L)
+                KeepExceptionAlert.alert(e, "[ItemFarming] 데이터를 불러오는 데 실패했습니다 ${e.message} | ${e.cause}", 100L, plugin)
             }
         }, 1) // world 때문
     }
@@ -184,7 +184,7 @@ object FarmingThingConfiguration: Listener {
             if (accumulatorWithoutAuto > totalAmount) {
                 if (!exceptionAlerted) {
                     exceptionAlerted = true
-                    KeepExceptionAlert.alert(null, "FarmingThing의 amount 설정이 100%를 초과하였음. > accumulatorWithoutAuto: $accumulatorWithoutAuto, usingAuto: $usingAutoCount", 100L)
+                    KeepExceptionAlert.alert(null, "FarmingThing의 amount 설정이 100%를 초과하였음. > accumulatorWithoutAuto: $accumulatorWithoutAuto, usingAuto: $usingAutoCount", 100L, plugin)
                 }
                 return if (amountStr.lowercase() == "auto") {
                     0

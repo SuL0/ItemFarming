@@ -1,6 +1,7 @@
 package kr.sul.itemfarming.setting.itemchance
 
 import com.shampaggon.crackshot2.CSMinion
+import kr.sul.Main.Companion.plugin
 import kr.sul.servercore.util.Base64Serialization
 import kr.sul.servercore.util.ItemBuilder.amountIB
 import kr.sul.servercore.util.ItemBuilder.loreIB
@@ -43,7 +44,7 @@ interface ItemForNodeData {
         }
         init {
             if (CSMinion.getInstance().vendingMachine(crackShotParentNode) == null) {
-                KeepExceptionAlert.alert(null, "[ItemFarming] CrackShot으로 된 아이템(ParentNode: $crackShotParentNode) 가 CrackShot에서 찾을 수 없는 총기입니다.", 100L) {
+                KeepExceptionAlert.alert(null, "[ItemFarming] CrackShot으로 된 아이템(ParentNode: $crackShotParentNode) 가 CrackShot에서 찾을 수 없는 총기입니다.", 500L, plugin) {
                     CSMinion.getInstance().vendingMachine(crackShotParentNode) != null
                 }
             }
