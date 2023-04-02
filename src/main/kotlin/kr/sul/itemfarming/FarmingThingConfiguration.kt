@@ -80,7 +80,7 @@ object FarmingThingConfiguration: Listener {
         }
     }
     fun initializeFromConfiguration() {
-        Bukkit.getScheduler().runTaskLater(plugin, {
+        Bukkit.getScheduler().runTaskLater(plugin, { _ ->
             try {
                 locationPoolFolder.listFiles(FileFilter { it.isFile && it.name.endsWith("json") && !it.name.startsWith("-") })?.forEach { file ->
                     loadLocationPool(file)
@@ -110,7 +110,7 @@ object FarmingThingConfiguration: Listener {
             // calculate the amount (auto때문에 먼저 같은 locationPool을 쓰는 것들끼리 모아서 auto가 값을 몇을 가지게 될지를 계산해야하기 때문)
             val mapForCalcAmount = hashMapOf<LocationPool, AmountDistributionCalculator>()
             getKeys(false).forEach { parentNode ->
-                val amountStr = getString("${parentNode}.amount")
+                val amountStr = getString("${parentNode}.amount")!!
                 val locationPool = allLocationPools[getString("${parentNode}.locations_file")]!!
                 if (!mapForCalcAmount.containsKey(locationPool)) {
                     mapForCalcAmount[locationPool] = AmountDistributionCalculator(locationPool.locations.size)
@@ -120,7 +120,7 @@ object FarmingThingConfiguration: Listener {
 
             // create farming thing instance
             getKeys(false).forEach { parentNode ->
-                val amountStr = getString("${parentNode}.amount")
+                val amountStr = getString("${parentNode}.amount")!!
                 val locationPool = allLocationPools[getString("${parentNode}.locations_file")]!!
                 val amount = mapForCalcAmount[locationPool]!!.getAmount(amountStr)
                 for (i in 0 until amount) {
@@ -129,8 +129,8 @@ object FarmingThingConfiguration: Listener {
                         ItemContainer.BlockType(
                             null,
                             Material.getMaterial(
-                                getString("${parentNode}.material")
-                            )
+                                getString("${parentNode}.material")!!
+                            )!!
                         ),
                         ItemChanceWrapper(
                             allItemChances[getString("${parentNode}.item_chance_file")]!!
@@ -138,7 +138,7 @@ object FarmingThingConfiguration: Listener {
                         locationPool,
                         getLong("${parentNode}.fill_items_cooldown_term"),
                         getString("${parentNode}.message_when_it_opened"),
-                        Sound.valueOf(getString("${parentNode}.sound_when_it_opened")),
+                        Sound.valueOf(getString("${parentNode}.sound_when_it_opened")!!),
                         getBoolean("${parentNode}.make_item_container_despawned_when_it_opened"),
                         getBoolean("${parentNode}.make_item_container_move_when_it_opened"),
                     )

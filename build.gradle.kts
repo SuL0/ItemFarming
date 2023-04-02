@@ -1,10 +1,12 @@
 plugins {
     kotlin("jvm") version "1.8.0"
-    id("kr.entree.spigradle") version "2.2.3"
+    id("kr.entree.spigradle") version "2.4.3"
 }
-
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
 group = "kr.sul"
-version = "1.0-SNAPSHOT"
+version = "1.19.4"
 
 repositories {
     mavenLocal()
@@ -14,20 +16,20 @@ repositories {
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://jitpack.io/")
     maven("https://nexus-repo.jordanosterberg.com/repository/maven-releases/")
+    maven("https://repo.purpurmc.org/snapshots")
 }
 
 val pluginDestination = "C:/MC-Development/마인즈서버/plugins"
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC")
-    compileOnly("com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT")
-    compileOnly("com.destroystokyo.paper:paper:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+//    compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
 
-    compileOnly("com.zaxxer:HikariCP:4.0.3")
+    compileOnly("com.zaxxer:HikariCP:5.0.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0")
 //    compileOnly("dev.jcsoftware:JScoreboards","2.1.2-RELEASE")
-//    implementation("org.yaml:snakeyaml:1.29")  snakeyaml은 bukkit의 lib에 포함되있을텐데?
-    compileOnly("kr.sul.servercore:bukkit:1.0-SNAPSHOT")
+    compileOnly("kr.sul.servercore:bukkit:1.19.4")
     compileOnly("kr.sul:CrackShot-2:1.0-SNAPSHOT")
     testImplementation("junit:junit:4.13.2")
 }
@@ -39,11 +41,6 @@ spigot {
     version = project.version.toString()
     depends = listOf("ServerCore")
     softDepends = listOf("CrackShot-2")
-    commands {
-        create("itemdb") {
-            permission = "op.op"
-        }
-    }
 }
 
 

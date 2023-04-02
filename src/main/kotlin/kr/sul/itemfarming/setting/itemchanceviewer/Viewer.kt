@@ -49,7 +49,7 @@ class Viewer(
             val find = childNodeViewerObjects.find { it.render() == e.currentItem } ?: return
             if (find.hasChildNode()) {
                 setPage(find.node)
-            } else if (e.cursor.type != Material.AIR){
+            } else if (e.cursor != null && e.cursor!!.type != Material.AIR){
                 find.putItem(e.cursor)
                 e.cursor = ItemStack(Material.AIR)
                 refresh()

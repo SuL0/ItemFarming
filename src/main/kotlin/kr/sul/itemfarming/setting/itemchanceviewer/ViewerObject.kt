@@ -7,7 +7,6 @@ import kr.sul.itemfarming.setting.itemchance.ItemNodeData
 import kr.sul.itemfarming.setting.itemchance.NodeData
 import kr.sul.servercore.util.ItemBuilder.clearLoreIB
 import kr.sul.servercore.util.ItemBuilder.loreIB
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -49,9 +48,9 @@ open class ViewerObject(
         val baseItem = if (node is ItemNodeData) {
             (node as ItemNodeData).item.get()
         } else if (node.childNodes != null) {
-            ItemStack(Material.WOOL, 1, 8) // grey colored wool
+            ItemStack(Material.GRAY_WOOL)
         } else {
-            ItemStack(Material.WOOL, 1, 0)
+            ItemStack(Material.WHITE_WOOL)
         }
 
         val lore = baseItem.lore

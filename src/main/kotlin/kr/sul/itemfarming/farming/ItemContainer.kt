@@ -45,9 +45,9 @@ abstract class ItemContainer {
         @EventHandler
         fun onInteract(e: PlayerInteractEvent) {
             if (placedLoc != null
-                    && e.clickedBlock.location.blockX == placedLoc!!.blockX
-                    && e.clickedBlock.location.blockY == placedLoc!!.blockY
-                    && e.clickedBlock.location.blockZ == placedLoc!!.blockZ) {
+                    && e.clickedBlock?.location?.blockX == placedLoc!!.blockX
+                    && e.clickedBlock?.location?.blockY == placedLoc!!.blockY
+                    && e.clickedBlock?.location?.blockZ == placedLoc!!.blockZ) {
                 onInteract?.accept(e)
             }
         }

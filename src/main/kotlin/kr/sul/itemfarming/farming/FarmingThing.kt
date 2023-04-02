@@ -55,7 +55,7 @@ class FarmingThing(
                 locationPool.returnLocation(placedLoc)
             }
             itemContainer.remove()
-            Bukkit.getScheduler().runTaskLater(plugin, {
+            Bukkit.getScheduler().runTaskLater(plugin, { _ ->
                 val locToPlace = if (makeItemContainerMoveWhenItOpened) {
                     locationPool.borrowLocation()
                 } else {
