@@ -2,10 +2,11 @@ package kr.sul.itemfarming
 
 import com.google.gson.GsonBuilder
 import kr.sul.Main.Companion.plugin
+import kr.sul.itemfarming.dynmap.DynmapHookup
 import kr.sul.itemfarming.farming.FarmingThing
 import kr.sul.itemfarming.farming.ItemChanceWrapper
 import kr.sul.itemfarming.farming.ItemContainer
-import kr.sul.itemfarming.farming.LocationPool
+import kr.sul.itemfarming.location.LocationPool
 import kr.sul.itemfarming.setting.itemchance.NodeData
 import kr.sul.itemfarming.setting.itemchance.NodeDataJsonConverter
 import kr.sul.servercore.util.KeepExceptionAlert
@@ -33,7 +34,7 @@ object FarmingThingConfiguration: Listener {
     private val allFarmingThings = arrayListOf<FarmingThing>()
 
     val allItemChances = hashMapOf<String, NodeData>()  // key: fileName
-    private val allLocationPools = hashMapOf<String, LocationPool>()  // key: fileName
+    val allLocationPools = hashMapOf<String, LocationPool>()  // key: fileName
 
     init {
         Bukkit.getPluginManager().registerEvents(this, plugin)
@@ -52,11 +53,18 @@ object FarmingThingConfiguration: Listener {
         allItemChances.forEach { (fileName, node) ->
             saveItemChance(node, File("${itemChanceFolder}/${fileName}"))
         }
+        allLocationPools.forEach { (fileName, locationPool) ->
+            saveLocationPool(locationPool, File("${locationPoolFolder}/${fileName}"))
+        }
     }
     fun onReloadConfiguration() {
+        // TODO 서버에 있는 데이터를 데이터파일에 덮어 써 버리면 리로드 하는 의미가 없는데?
         allFarmingThings.forEach { it.destroy() }
         allItemChances.forEach { (fileName, node) ->
             saveItemChance(node, File("${itemChanceFolder}/${fileName}"))
+        }
+        allLocationPools.forEach { (fileName, locationPool) ->
+            saveLocationPool(locationPool, File("${locationPoolFolder}/${fileName}"))
         }
         allFarmingThings.clear()
         allItemChances.clear()
@@ -64,21 +72,34 @@ object FarmingThingConfiguration: Listener {
         initializeFromConfiguration()
     }
 
+    private fun saveLocationPool(locationPool: LocationPool, file: File) {
+        val jsonObject = JSONObject()
+        jsonObject["dynmap_area"] = locationPool.dynmapArea?.markerID ?: ""
+        jsonObject["locations"] = JSONArray().apply {
+            addAll(
+                locationPool.locations.map { loc ->
+                    JSONObject().apply {
+                        this["world"] = loc.world.name
+                        this["x"] = kotlin.math.floor(loc.x)
+                        this["y"] = kotlin.math.floor(loc.y)
+                        this["z"] = kotlin.math.floor(loc.z)
+                    }
+                }
+            )
+        }
+        val finalJson = GsonBuilder().setPrettyPrinting().create()
+            .toJson(jsonObject)
+        saveToFile(finalJson, file)
+    }
     private fun saveItemChance(node: NodeData, file: File) {
         val nodeToJson = node.convertToJson()
+
         val finalJson = GsonBuilder().setPrettyPrinting().create()
             .toJson(nodeToJson)
-
-        // Writer은 기존의 파일 내용을 모두 무로 만든 후, 파일을 처음부터 새로 쓰기 시작함. 따라서 Writer 생성하고 바로 close()할 시 파일의 모든 내용을 지우게 됨.
-        val bWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(file), "UTF-8"))
-        try {
-            bWriter.write(finalJson)
-            bWriter.flush()
-        } catch(ignored: IOException) {
-        } finally {
-            bWriter.close()
-        }
+        saveToFile(finalJson, file)
     }
+
+
     fun initializeFromConfiguration() {
         Bukkit.getScheduler().runTaskLater(plugin, { _ ->
             try {
@@ -100,7 +121,8 @@ object FarmingThingConfiguration: Listener {
         val locations = (jsonObject["locations"] as JSONArray).map { it as JSONObject }.map {
             Location(Bukkit.getWorld(it["world"] as String), it["x"].toString().toDouble(), it["y"].toString().toDouble(), it["z"].toString().toDouble())
         }
-        allLocationPools[file.name] = LocationPool(locations)
+        val dynmapArea = DynmapHookup.getArea(jsonObject["dynmap_area"] as String)
+        allLocationPools[file.name] = LocationPool(file.name, locations, dynmapArea)
     }
     private fun loadItemChance(file: File) {
         allItemChances[file.name] = NodeDataJsonConverter.importJson(readJsonFile(file))
@@ -110,26 +132,26 @@ object FarmingThingConfiguration: Listener {
             // calculate the amount (auto때문에 먼저 같은 locationPool을 쓰는 것들끼리 모아서 auto가 값을 몇을 가지게 될지를 계산해야하기 때문)
             val mapForCalcAmount = hashMapOf<LocationPool, AmountDistributionCalculator>()
             getKeys(false).forEach { parentNode ->
-                val amountStr = getString("${parentNode}.amount")!!
+                val amountStr = getString("${parentNode}.amount")!!  // auto/개수/비중%
                 val locationPool = allLocationPools[getString("${parentNode}.locations_file")]!!
                 if (!mapForCalcAmount.containsKey(locationPool)) {
                     mapForCalcAmount[locationPool] = AmountDistributionCalculator(locationPool.locations.size)
                 }
-                mapForCalcAmount[locationPool]!!.register(amountStr)
+                mapForCalcAmount[locationPool]!!.registerAmountStrToCalculator(amountStr)
             }
 
             // create farming thing instance
             getKeys(false).forEach { parentNode ->
                 val amountStr = getString("${parentNode}.amount")!!
                 val locationPool = allLocationPools[getString("${parentNode}.locations_file")]!!
-                val amount = mapForCalcAmount[locationPool]!!.getAmount(amountStr)
+                val amount = mapForCalcAmount[locationPool]!!.getCalculatedAmount(amountStr)
                 for (i in 0 until amount) {
 
                     val farmingThing = FarmingThing(
                         ItemContainer.BlockType(
                             null,
                             Material.getMaterial(
-                                getString("${parentNode}.material")!!
+                                getString("${parentNode}.material")!!.toUpperCase()
                             )!!
                         ),
                         ItemChanceWrapper(
@@ -148,6 +170,17 @@ object FarmingThingConfiguration: Listener {
         }
     }
 
+    private fun saveToFile(content: String, file: File) {
+        // Writer은 기존의 파일 내용을 모두 무로 만든 후, 파일을 처음부터 새로 쓰기 시작함. 따라서 Writer 생성하고 바로 close()할 시 파일의 모든 내용을 지우게 됨.
+        val bWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(file), "UTF-8"))
+        try {
+            bWriter.write(content)
+            bWriter.flush()
+        } catch(ignored: IOException) {
+        } finally {
+            bWriter.close()
+        }
+    }
     private fun<T> readFileAndParseAsJsonThing(file: File): T {
         val simplifiedJsonStr = readJsonFile(file)
         return JSONParser().parse(simplifiedJsonStr) as T
@@ -165,13 +198,15 @@ object FarmingThingConfiguration: Listener {
         private var accumulatorWithoutAuto = 0
         private var usingAutoCount = 0
         private var exceptionAlerted = false
-        fun register(amountStr: String) {
+
+        // 한개의 location pool에 복수개의 FarmingThing이 사용할 수 있음
+        fun registerAmountStrToCalculator(amountStr: String) {
             if (amountStr.lowercase() == "auto") {
                 usingAutoCount+=1
             } else {
                 val amountParsed = parseStr(amountStr)
                 if (amountStr.endsWith("%")) {
-                    accumulatorWithoutAuto += (amountParsed/100)*totalAmount
+                    accumulatorWithoutAuto += ((amountParsed/100.0)*totalAmount).toInt()
                 } else {
                     accumulatorWithoutAuto += amountParsed
                 }
@@ -179,7 +214,7 @@ object FarmingThingConfiguration: Listener {
         }
 
         // 배분된 값을 꺼내가는 것
-        fun getAmount(amountStr: String): Int {
+        fun getCalculatedAmount(amountStr: String): Int {
             // auto를 제외한 값만으로도 100%를 초과하는 상황 (에러)
             if (accumulatorWithoutAuto > totalAmount) {
                 if (!exceptionAlerted) {
@@ -194,8 +229,9 @@ object FarmingThingConfiguration: Listener {
                     (parseStr(amountStr) * (100.0/accumulatorWithoutAuto)).toInt()
                 }
             }
+
             return if (amountStr.lowercase() == "auto") {
-                accumulatorWithoutAuto/usingAutoCount
+                (totalAmount-accumulatorWithoutAuto)/usingAutoCount
             } else if (amountStr.endsWith("%")) {
                 ((parseStr(amountStr)/100.0)*totalAmount).toInt()
             } else {

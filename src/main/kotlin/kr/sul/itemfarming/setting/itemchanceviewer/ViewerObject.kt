@@ -46,7 +46,7 @@ open class ViewerObject(
     // render
     fun render(): ItemStack {
         val baseItem = if (node is ItemNodeData) {
-            (node as ItemNodeData).item.get()
+            (node as ItemNodeData).item.get().clone()
         } else if (node.childNodes != null) {
             ItemStack(Material.GRAY_WOOL)
         } else {

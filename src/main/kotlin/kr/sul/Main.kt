@@ -1,7 +1,9 @@
 package kr.sul
 
+import dev.jorel.commandapi.CommandAPI
+import kr.sul.itemfarming.Command
 import kr.sul.itemfarming.FarmingThingConfiguration
-import kr.sul.itemfarming.setting.Command
+import kr.sul.itemfarming.location.LocationRegisterListener
 import kr.sul.servercore.file.simplylog.LogLevel
 import kr.sul.servercore.file.simplylog.SimplyLog
 import org.bukkit.Bukkit
@@ -37,12 +39,15 @@ class Main : JavaPlugin(), Listener {
     }
 
     override fun onDisable() {
+        CommandAPI.unregister("itemfarming")
     }
 
     private fun registerClasses() {
         Bukkit.getPluginManager().registerEvents(this, this)
+        Bukkit.getPluginManager().registerEvents(LocationRegisterListener, this)
         FarmingThingConfiguration.initializeFromConfiguration()
         BukkitCommandHandler.create(plugin).register(Command)
+        Command.initialize()
     }
 
 
