@@ -22,7 +22,7 @@ object LocationRegisterListener: Listener {
             return
         }
         e.player.sendMessage("§e${locationPool.name} Pool§f에 등록됨")
-        locationPool.locations.add(e.block.location)
+        locationPool.addLocation(e.block.location)
         e.player.world.spawnParticle(Particle.GLOW, e.block.location.toCenterLocation(), 10, 0.1, 0.5, 0.1, 0.0)
     }
 }

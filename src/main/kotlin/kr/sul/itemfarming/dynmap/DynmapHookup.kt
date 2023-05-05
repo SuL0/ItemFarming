@@ -5,55 +5,46 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
-import org.bukkit.scheduler.BukkitTask
 import org.dynmap.DynmapAPI
 import org.dynmap.markers.AreaMarker
 import org.dynmap.markers.Marker
 
 object DynmapHookup {
     // TODO 에어드랍 나타났을 시 지도에 아이콘을 띄워야 함
-    private val dynmapPlugin = Bukkit.getPluginManager().getPlugin("dynmap") as (DynmapAPI)
+    val dynmapPlugin = Bukkit.getPluginManager().getPlugin("dynmap") as (DynmapAPI)
     private val areaMarkerSet = dynmapPlugin.markerAPI.getMarkerSet("Farming") ?: run {
-        return@run dynmapPlugin.markerAPI.createMarkerSet("Farming", "Farming", null, true)
+        return@run dynmapPlugin.markerAPI.createMarkerSet("Farming", "Farming", null, true).apply {
+            this.hideByDefault = false
+        }
     }
-    private val tempMarkerStore = hashMapOf<Any, List<Marker>>()
     fun getArea(areaName: String?): AreaMarker? {
         if (areaName == null || areaName == "") return null
         return areaMarkerSet.findAreaMarker(areaName)
     }
 
-    fun createMarker(loc: Location, markerSetName: String, markerIconName: String, id: String, label: String): Marker {
+    fun createMarker(loc: Location, markerSetName: String, markerIconId: String, id: String, label: String): Marker {
         val markerSet = dynmapPlugin.markerAPI.getMarkerSet(markerSetName) ?: run {
             return@run dynmapPlugin.markerAPI.createMarkerSet(markerSetName, markerSetName, null, false) // the fourth parameter represents should marker be persistent or not
         }
         markerSet.hideByDefault = true
-        val icon = dynmapPlugin.markerAPI.getMarkerIcon(markerIconName)
+        val icon = dynmapPlugin.markerAPI.getMarkerIcon(markerIconId)
         /**
          * id - ID of the marker - must be unique within the set: if null, unique ID is generated
          * label - Label for the marker (plain text)
          * world's name, x,y,z, icon - Icon for the marker
          * is_persistent - if true, marker is persistent (saved and reloaded on restart).  If set is not persistent, this must be false.
          */
+
         return markerSet.createMarker(id, label, loc.world.name, loc.x, loc.y, loc.z, icon, false)
     }
-    fun Marker.deleteAfter(sec: Long): Marker {
+    fun Marker.deleteAfter(tick: Long): Marker {
         Bukkit.getScheduler().runTaskLater(dynmapPlugin as Plugin, { ->
             this.deleteMarker()
-        }, sec*20)
+        }, tick)
         return this
     }
 
-    /**
-     * @param paramGetter[0~2]: (markerIconName, id, label)
-     */
-    fun displayMarker(identifierObj: Any, markerSetName: String, paramGetter: ()->(Map<Location, List<String>>)): BukkitTask {
-        return Bukkit.getScheduler().runTaskTimer(dynmapPlugin as Plugin, { ->
-            tempMarkerStore[identifierObj]?.forEach { it.deleteMarker() }
-            tempMarkerStore[identifierObj] = paramGetter.invoke().map { (loc, params) ->
-                createMarker(loc, markerSetName, params[0], params[1], params[2])
-            }.toList()
-        }, 20, 20)
-    }
+
 
     private val tempCornerStore = hashMapOf<Player, ArrayList<Location>>()
     fun addCorner(p: Player) {

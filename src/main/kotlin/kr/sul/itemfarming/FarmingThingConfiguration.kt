@@ -31,7 +31,7 @@ object FarmingThingConfiguration: Listener {
     private val locationPoolFolder = File("${plugin.dataFolder}/location_pool")
     private val itemChanceFolder = File("${plugin.dataFolder}/item_chance")
 
-    private val allFarmingThings = arrayListOf<FarmingThing>()
+    val allFarmingThings = arrayListOf<FarmingThing>()
 
     val allItemChances = hashMapOf<String, NodeData>()  // key: fileName
     val allLocationPools = hashMapOf<String, LocationPool>()  // key: fileName

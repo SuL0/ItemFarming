@@ -1,11 +1,10 @@
 package kr.sul.itemfarming.location
 
-import kr.sul.Main.Companion.plugin
-import kr.sul.itemfarming.dynmap.DynmapHookup
-import kr.sul.servercore.extensionfunction.BukkitTaskFunction.cancelAfter
+import kr.sul.itemfarming.dynmap.DisplayMarkerContinuously
+import kr.sul.itemfarming.dynmap.MarkerParams
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.dynmap.markers.AreaMarker
-import org.dynmap.markers.Marker
 
 class LocationPool(
     val name: String,
@@ -14,28 +13,54 @@ class LocationPool(
 ) {
     val locations = locations.map { it.toBlockLocation() }.toMutableList()
     private val canBeBorrowed = ArrayList(locations)
-    private val previousMarkers = arrayListOf<Marker>()
 
-    fun borrowLocation(): Location {
-        val loc = canBeBorrowed.random()
-        canBeBorrowed.remove(loc)
-        return loc
+    fun borrowLocation(): Location? {
+        return try {
+            val loc = canBeBorrowed.random()
+            canBeBorrowed.remove(loc)
+            loc
+        } catch (e: NoSuchElementException) {
+            // 중도에 location이 삭제되면 loc 개수가 모자랄 수 있음
+            null
+        }
     }
     fun returnLocation(loc: Location) {
         canBeBorrowed.add(loc)
     }
 
+    // 중도에 Command에 의해 추가된 location
+    fun addLocation(loc: Location) {
+        locations.add(loc)
+        canBeBorrowed.add(loc)
+    }
+    // 중도에 Command에 의해 삭제된 location
+    fun deleteLocationPermanently(loc: Location): Boolean {
+        if (!locations.contains(loc)) return false
+        locations.remove(loc)
+        // 이미 어떠한 FarmingThing이 사용중인 위치일 때
+        if (!canBeBorrowed.contains(loc)) {
+            // 위치 삭제 이벤트 발생시켜서 ItemFarming 객체들이 확인하게끔 함
+            Bukkit.getPluginManager().callEvent(LocationDeletionEvent(this, loc))
+        }
+        canBeBorrowed.remove(loc)
+        return true
+    }
+
     fun displayAllLocationWithMarkerForAWhile() {
-        DynmapHookup.displayMarker(this, "Debug") {
-            // paramGetter[0~2]: (markerIconName, id, label)
-            return@displayMarker locations.associateWith {
-                val markerIconName = if (canBeBorrowed.contains(it)) {
-                    "redflag"
-                } else {
-                    "greenflag"
-                }
-                return@associateWith listOf(markerIconName, it.toString(), "is in ${dynmapArea?.markerID ?: "NO-WHERE(X)"}")
+        DisplayMarkerContinuously.displayMarker("Debug", {
+            return@displayMarker locations.map {
+                val markerIconId = if (canBeBorrowed.contains(it)) { "redflag" } else { "greenflag" }
+                MarkerParams(it, markerIconId, it.hashCode().toString(), "I'm in '${dynmapArea?.markerID ?: "NO-WHERE(X)"}'")
             }
-        }.cancelAfter(plugin, 60*20)
+        }, 60*20)
+    }
+
+
+
+
+    enum class DeleteResult {
+        DELETED,
+        DELETED_BUT_IN_USE,
+        NOT_EXIST;
     }
 }

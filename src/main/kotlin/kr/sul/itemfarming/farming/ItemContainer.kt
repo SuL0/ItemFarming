@@ -5,6 +5,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
+import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -15,6 +16,7 @@ import java.util.function.Consumer
 
 abstract class ItemContainer {
 
+    // 설치되는 블럭 타입
     class BlockType(
         override var placedLoc: Location?,
         private val material: Material
@@ -25,7 +27,7 @@ abstract class ItemContainer {
         }
         override fun place(locToPlace: Location) {
             locToPlace.block.type = material
-            this.placedLoc = locToPlace.block.location
+            this.placedLoc = locToPlace
             inventory.close()
             inventory.clear()
         }
@@ -41,6 +43,14 @@ abstract class ItemContainer {
             for ((i, item) in items.withIndex()) {
                 inventory.setItem(9+i, item)
             }
+        }
+
+        override fun destroy() {
+            inventory.viewers.forEach { viewer ->
+                viewer.closeInventory()
+            }
+            HandlerList.unregisterAll(this)
+            remove()
         }
         @EventHandler
         fun onInteract(e: PlayerInteractEvent) {
@@ -68,6 +78,7 @@ abstract class ItemContainer {
     abstract var inventory: Inventory
     abstract fun place(locToPlace: Location)
     abstract fun remove()
+    abstract fun destroy()
     abstract fun setItemsPretty(items: List<ItemStack>)
     var onInteract: Consumer<PlayerInteractEvent>? = null
     var onClose: Consumer<InventoryCloseEvent>? = null

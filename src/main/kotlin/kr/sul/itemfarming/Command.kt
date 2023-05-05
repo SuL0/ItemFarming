@@ -2,8 +2,7 @@ package kr.sul.itemfarming
 
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.CommandTree
-import dev.jorel.commandapi.arguments.LiteralArgument
-import dev.jorel.commandapi.arguments.StringArgument
+import dev.jorel.commandapi.arguments.*
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import kr.sul.itemfarming.dynmap.DynmapHookup
 import kr.sul.itemfarming.location.LocationRegisterListener
@@ -12,6 +11,8 @@ import kr.sul.servercore.util.MsgPrefix
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
+import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 
 object Command {
@@ -53,15 +54,55 @@ object Command {
                                 hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(TextComponent("§f 해당 Location Pool에 속한 모든 위치를 Dynmap에 §c60초§f간 표시")))
                                 clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/itemfarming location $path")
                             })
+                            add(TextComponent("    "))
+                            add(TextComponent("   §c§l[ SHOW LOCATION LIST ]").apply {
+                                hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(TextComponent("§f 해당 Location Pool에 속한 모든 위치를 채팅에 표시")))
+                                clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/itemfarming location list $path")
+                            })
                         }
                         p.sendMessage(*jsonMsg.toTypedArray())
                     }
                 })
+                .then(LiteralArgument("delete")
+                    .then(StringArgument("location pool").replaceSuggestions(ArgumentSuggestions.strings(FarmingThingConfiguration.allLocationPools.keys))
+                        .then(LocationArgument("location")
+                            .replaceSuggestions(ArgumentSuggestions.strings { record ->
+                                val locationPool = FarmingThingConfiguration.allLocationPools[record.previousArgs[0]] ?: return@strings arrayOf("")
+                                return@strings locationPool.locations.map { loc -> "${loc.world},${loc.x},${loc.y},${loc.z}"}.toTypedArray()
+                            })
+                            .executesPlayer(PlayerCommandExecutor { p, args ->
+                                val locationPool = FarmingThingConfiguration.allLocationPools[args[0]]
+                                    ?: run {
+                                        p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION_POOL_PATH PASSED > '${args[0]}'")
+                                        return@PlayerCommandExecutor
+                                    }
+                                val world = Bukkit.getWorld((args[1] as String).split(",")[0]) 
+                                    ?: run {
+                                        p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION(WORLD) PASSED > '${args[1]}'")
+                                        return@PlayerCommandExecutor
+                                    }
+                                val x = (args[1] as String).split(",")[1].toDoubleOrNull()
+                                val y = (args[1] as String).split(",")[2].toDoubleOrNull()
+                                val z = (args[1] as String).split(",")[3].toDoubleOrNull()
+                                if (x == null || y == null || z == null) {
+                                    p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION PASSED > '${args[1]}'")
+                                    return@PlayerCommandExecutor
+                                }
+                                val deleteResult = locationPool.deleteLocationPermanently(Location(world, x,y,z))
+                                if (deleteResult) {
+                                    p.sendMessage("${MsgPrefix.get("FARMING")}§e'${locationPool.name}' §fLocation Pool 에서 해당 위치를 §c삭제§f했습니다. > ${world.name}, ${x}, ${y}, ${z}")
+                                } else {
+                                    p.sendMessage("${MsgPrefix.get("FARMING")}§4§l'${locationPool.name}' Location Pool 에 존재하지 않는 위치입니다 > ${world.name}, ${x}, ${y}, ${z}")
+                                }
+                            })
+                        )
+                    )
+                )
                 .then(StringArgument("path")
                     .executesPlayer(PlayerCommandExecutor { p, args ->
                         val locationPool = FarmingThingConfiguration.allLocationPools[args[0]]
                             ?: run {
-                                p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID PATH PASSED > '${args[0]}'")
+                                p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION_POOL_PATH PASSED > '${args[0]}'")
                                 return@PlayerCommandExecutor
                             }
                         p.sendMessage("${MsgPrefix.get("FARMING")}§fdynmap Debug 레이어 확인")
@@ -73,7 +114,7 @@ object Command {
                         .executesPlayer(PlayerCommandExecutor { p, args ->
                             val locationPool = FarmingThingConfiguration.allLocationPools[args[0]]
                                 ?: run {
-                                    p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID PATH PASSED > '${args[0]}'")
+                                    p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION_POOL_PATH PASSED > '${args[0]}'")
                                     return@PlayerCommandExecutor
                                 }
                             if (LocationRegisterListener.whereToRegister[p] == locationPool) {
@@ -106,7 +147,7 @@ object Command {
                     .executesPlayer(PlayerCommandExecutor { p, args ->
                         val nodeData = FarmingThingConfiguration.allItemChances[args[0]]
                             ?: run {
-                                p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID PATH PASSED > '${args[0]}'")
+                                p.sendMessage("${MsgPrefix.get("FARMING")}§4§lINVALID LOCATION_POOL_PATH PASSED > '${args[0]}'")
                                 return@PlayerCommandExecutor
                             }
                         Viewer(p, nodeData)
@@ -132,6 +173,18 @@ object Command {
                                 DynmapHookup.addArea(p, args[0] as String, args[1] as String)
                             })
                         )
+                    )
+                )
+                .then(LiteralArgument("removearea")
+                    .then(StringArgument("id")
+                        .executesPlayer(PlayerCommandExecutor { p, args ->
+                            DynmapHookup.getArea(args[0] as String)?.deleteMarker()
+                                ?: run {
+                                    p.sendMessage("${MsgPrefix.get("FARMING")}§f${args[0] as String}영역을 찾을 수 없습니다.")
+                                    return@PlayerCommandExecutor
+                                }
+                            p.sendMessage("${MsgPrefix.get("FARMING")}§f${args[0] as String}영역을 §c삭제§f했습니다.")
+                        })
                     )
                 )
             )

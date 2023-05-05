@@ -10,12 +10,11 @@ object DisplayFarmingThingOnDynmap {
     private val spotToShow = hashMapOf<LocationPool, ArrayList<Pair<FarmingThing, Location>>>()
 
     init {
-        DynmapHookup.displayMarker(this, "Farming") {
-            // paramGetter[0~2]: (markerIconName, id, label)
+        DisplayMarkerContinuously.displayMarker("Farming", {
             return@displayMarker spotToShow.map { (t, u) ->
-                u.map { it.second }.associateWith { listOf("greenflag", it.toString(), "상자") }
-            }.reduce { acc, map -> acc.toMutableMap().apply { putAll(map) } }
-        }
+                u.map { it.second }.map { MarkerParams(it, "greenflag", it.hashCode().toString(), "상자") }
+            }.reduce { acc, markerParams -> acc.toMutableList().apply { addAll(markerParams) } }
+        }, null)
     }
 
     fun showOnMap(locationPool: LocationPool, farmingThing: FarmingThing, loc: Location) {
